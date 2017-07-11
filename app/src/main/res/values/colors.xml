@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#00bfa5</color>
+    <color name="colorPrimaryDark">#008e76</color>
+    <color name="colorAccent">#f25a6d</color>
+
+    <color name="white">#ffffff</color>
+    <color name="black">#000000</color>
+    <color name="lightGrey">#bfbfbf</color>
+    <color name="midGrey">#80808080</color>
+    <color name="darkGrey">#3f3f3f</color>
+
+    <!-- Colors for debugging -->
+    <color name="debug_red">#ff0000</color>
+    <color name="debug_blue">#002aff</color>
+    <color name="debug_green">#4cff00</color>
+    <color name="debug_yellow">#ffee00</color>
+
+    <!-- fancy transparency -->
+    <color name="transparent">#00ffffff</color>
+</resources>
