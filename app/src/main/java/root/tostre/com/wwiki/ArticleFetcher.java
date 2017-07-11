@@ -67,35 +67,32 @@ public class ArticleFetcher extends AsyncTask<String, Void , ArrayList<String>>{
     @Override
     protected ArrayList<String> doInBackground(String... urls) {
         articleJsonUrl = urls[0];
-        Log.d("DBG", urls[0]);
         articleTextArray = new ArrayList<String>();
 
         try {
+            Log.d("DBG", "try 1");
             documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilder = documentBuilderFactory.newDocumentBuilder();
-
+            Log.d("DBG", "try 2");
             inputStream = new URL(articleJsonUrl).openStream();
             BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
             StringBuilder sb = new StringBuilder();
             String line = "";
-
+            Log.d("DBG", "try 3");
             while ((line = br.readLine()) != null) {
                 sb.append(line);
             }
-
-            Log.d("DBG", "line " + line);
-
+            Log.d("DBG", "try 4");
             JSONObject json = new JSONObject(sb.toString());
             document = documentBuilder.parse(new InputSource(new StringReader(json.getJSONObject("parse").getJSONObject("text").getString("*"))));
             document.getDocumentElement().normalize();
-
+            Log.d("DBG", "try 5");
             // Search the title and add it to the articleArray
             /*tagList = document.getElementsByTagName("parse");
             tagNode = tagList.item(0);
             tagElement = (Element) tagNode;*/
             articleTextArray.add(json.getJSONObject("parse").getString("title"));
-            Log.d("DBG", "json " +  json.getJSONObject("parse").getString("title"));
-            Log.d("DBG", "json " +  articleTextArray.get(0));
+            Log.d("DBG", "try 6");
             // Search the extract and add it to the articleArray
             /*tagList = document.getElementsByTagName("extract");
             tagNode = tagList.item(0);
@@ -109,7 +106,7 @@ public class ArticleFetcher extends AsyncTask<String, Void , ArrayList<String>>{
             String textp = json.getJSONObject("parse").getJSONObject("text").getString("*");
             textp = new HtmlCleaner().cleanHtmlString(textp, Whitelist.relaxed());
             articleTextArray.add(textp);
-
+            Log.d("DBG", "try 7");
             // Add the url to the articleArray
             articleTextArray.add(articleJsonUrl);
             inputStream.close();
@@ -118,9 +115,11 @@ public class ArticleFetcher extends AsyncTask<String, Void , ArrayList<String>>{
             e.printStackTrace();
         } catch (JSONException e) {
             e.printStackTrace();
-        } catch (SAXException e) {
+        } /*catch (SAXException e) {
             e.printStackTrace();
-        } catch (ParserConfigurationException e) {
+        }*/ catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        } catch (SAXException e) {
             e.printStackTrace();
         }
         return articleTextArray;
@@ -145,29 +144,6 @@ public class ArticleFetcher extends AsyncTask<String, Void , ArrayList<String>>{
 
 
 
-
-    /*
-            // Get the root element of document
-            Element root = document.getDocumentElement();
-            String rootName = root.getNodeName();
-            Log.d("DBG", rootName);
-            // Examine the attributes of an element
-            String title = root.getAttribute("title");  //returns specific attribute
-            NamedNodeMap attributeMap = root.getAttributes();  //returns a Map (table) of names/values
-            // Child elements can inquired in below manner.
-            node.getElementsByTagName("subElementName") //returns a list of sub-elements of specified name
-            node.getChildNodes()                         //returns a list of all child nodes
-            // Create a list of all elements with the same starttag (e.g. food)
-            NodeList nList = document.getElementsByTagName("employee");
-            System.out.println("============================");
-            // Get an specific elemet out of the list, e.g. the 4th or 7th
-            Node node = nList.item(0);
-            // Cast the node to an element
-            Element nodeElement = (Element) node;
-            // Print out the values/details from the element
-            String a = nodeElement.getAttribute("id"); // Returns the value saved in the id attribute
-            String b = nList.item(0).getTextContent();
-            */
 
 }
 

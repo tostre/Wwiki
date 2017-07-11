@@ -39,18 +39,13 @@ public class MainActivity extends AppCompatActivity{
 
     private Article article;
     private String currentFragment = "reader";
-
     private ReaderFragment readerFragment;
     private SavedFragment savedFragment;
     private RecentsFragment recentsFragment;
-
     private int loadingStatus = 0;
-    private Menu menu;
     private NestedScrollView content_container;
-
     private ConnectivityManager connectivityManager;
     private NetworkInfo networkInfo;
-
     private ArrayList<String> recentArticles;
 
     /**
