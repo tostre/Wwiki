@@ -26,7 +26,7 @@ public class SearchActivity extends AppCompatActivity {
     private ArrayList<String> articleList;
     private ArrayList<String> urlList;
     private String url;
-    private String apiEndpointArticle = "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro=&explaintext=&titles=";
+    private String apiEndpointArticle = "https://en.wikipedia.org/w/api.php?format=json&redirects=yes&action=parse&disableeditsection=true&page=";
     private String apiEndpointImg ="https://en.wikipedia.org/w/api.php?action=query&prop=pageimages&piprop=original&format=json&titles=";
     private String apiEndpointSearch = "https://en.wikipedia.org/w/api.php?action=query&list=search&srlimit=20&format=json&srsearch=";
     private Handler handler = new Handler();
@@ -60,13 +60,13 @@ public class SearchActivity extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 switch(position){
                     case 0:
-                        apiEndpointArticle = "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro=&explaintext=&titles=";
+                        apiEndpointArticle = "https://en.wikipedia.org/w/api.php?format=json&redirects=yes&action=parse&disableeditsection=true&page=";
                         apiEndpointImg ="https://en.wikipedia.org/w/api.php?action=query&prop=pageimages&piprop=original&format=json&titles=";
                         apiEndpointSearch = "https://en.wikipedia.org/w/api.php?action=query&list=search&srlimit=20&format=json&srsearch=";
                         loadSearchResults();
                         break;
                     case 1:
-                        apiEndpointArticle = "https://de.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro=&explaintext=&titles=";
+                        apiEndpointArticle = "https://de.wikipedia.org/w/api.php?format=json&redirects=yes&action=parse&disableeditsection=true&page=";
                         apiEndpointImg ="https://de.wikipedia.org/w/api.php?action=query&prop=pageimages&piprop=original&format=json&titles=";
                         apiEndpointSearch = "https://de.wikipedia.org/w/api.php?action=query&list=search&srlimit=20&format=json&srsearch=";
                         loadSearchResults();

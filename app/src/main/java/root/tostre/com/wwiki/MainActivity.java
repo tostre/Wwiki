@@ -19,6 +19,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -48,6 +49,17 @@ public class MainActivity extends AppCompatActivity{
     private ConnectivityManager connectivityManager;
     private NetworkInfo networkInfo;
     private ArrayList<String> recentArticles;
+    private String myTable = "<table border=1>" +
+            "<tr>" +
+            "<td>row 1, cell 1</td>" +
+            "<td>row 1, cell 2</td>" +
+            "</tr>" +
+            "<tr>" +
+            "<td>row 2, cell 1</td>" +
+            "<td>row 2, cell 2</td>" +
+            "</tr>" +
+            "</table>";
+    private WebView wv;
 
     /**
      * Initializes the view and sets up variables that are used
@@ -74,15 +86,8 @@ public class MainActivity extends AppCompatActivity{
         ProgressBar progressBar = (ProgressBar) findViewById(R.id.image_progressBar);
         progressBar.setVisibility(View.GONE);
 
-        // Initialize all fragments of the activity
-        readerFragment = ReaderFragment.newInstance(article.getTitle(), article.getExtract());
-        savedFragment = SavedFragment.newInstance();
-        recentsFragment = RecentsFragment.newInstance();
-
-
-
         // Initialize WebView
-        WebView wv = (WebView) findViewById(R.id.content_text);
+        wv = (WebView) findViewById(R.id.content_text);
         //wv.getSettings().setJavaScriptEnabled(true);
 
         // Save data that is frequently used
@@ -93,7 +98,6 @@ public class MainActivity extends AppCompatActivity{
 
         // Create whatever's left to create
         connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-
     }
 
     /**
@@ -146,8 +150,6 @@ public class MainActivity extends AppCompatActivity{
                 startActivityForResult(intent, 1);
                 return true;
             case R.id.overflow_save:
-                new TestHTML().execute();
-                //saveArticle();
                 updateArticleText("titke", getResources().getString(R.string.large_text));
                 return true;
             case R.id.overflow_delete:
@@ -160,7 +162,6 @@ public class MainActivity extends AppCompatActivity{
 
     // Initializes bottom bar behavior
     private void setBottomBar() {
-
         BottomNavigationView.OnNavigationItemSelectedListener navigationSelectedListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
@@ -197,8 +198,6 @@ public class MainActivity extends AppCompatActivity{
      * methods
      */
 
-
-
     @Override // Gets called when searchActivity has finished, gets xmlUrls from its intent
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -227,6 +226,37 @@ public class MainActivity extends AppCompatActivity{
     // Updates the text-related values in the article, updates view; called from articleFetcher
     public void updateArticleText(String title, String text){
         ((CollapsingToolbarLayout) findViewById(R.id.collapsingToolbar)).setTitle(title);
+        /*
+        text = "<HTML>\n" +
+                "<HEAD>\n" +
+                "<TITLE>Your Title Here</TITLE>\n" +
+                "</HEAD>\n" +
+                "<BODY BGCOLOR=\"FFFFFF\">\n" +
+                "<CENTER><IMG SRC=\"clouds.jpg\" ALIGN=\"BOTTOM\"> </CENTER>\n" +
+                "<HR>\n" +
+                "<a href=\"http://somegreatsite.com\">Link Name</a>\n" +
+                "is a link to another nifty site\n" +
+                "<H1>This is a Header</H1>\n" +
+                "<H2>This is a Medium Header</H2>\n" +
+                "Send me mail at <a href=\"mailto:support@yourcompany.com\">\n" +
+                "support@yourcompany.com</a>.\n" +
+                "<P> This is a new paragraph!\n" +
+                "<P> <B>This is a new paragraph!</B>\n" +
+                "<BR> <B><I>This is a new sentence without a paragraph break, in bold italics.</I></B>\n" +
+                "<HR>\n" +
+                "</BODY>\n" +
+                "</HTML>";
+
+        text = "<table border=1>" +
+                "<tr>" +
+                "<td>row 1, cell 1</td>" +
+                "<td>row 1, cell 2</td>" +
+                "</tr>" +
+                "<tr>" +
+                "<td>row 2, cell 1</td>" +
+                "<td>row 2, cell 2</td>" +
+                "</tr>" +
+                "</table>";*/
 
         ((WebView) findViewById(R.id.content_text)).loadData(text, "text/html; charset=utf-8", "utf-8");
 
@@ -277,6 +307,16 @@ public class MainActivity extends AppCompatActivity{
                 currentFragment = newFragment;
                 // Replaces children of content_container with new fragment
                 //fragmentTransaction.setCustomAnimations(R.anim.slide_left, R.anim.slide_right);
+
+
+                //readerFragment = ReaderFragment.newInstance(article.getTitle(), article.getExtract());
+                //savedFragment = SavedFragment.newInstance();
+                //recentsFragment = RecentsFragment.newInstance();
+
+                if (readerFragment == null){
+                    readerFragment = ReaderFragment.newInstance(article.getTitle(), article.getExtract());
+                }
+
                 fragmentTransaction.replace(R.id.content_container, ReaderFragment.newInstance(article.getTitle(), article.getExtract()), "reader");
                 // Enables collapsing toolbar
                 content_container.setNestedScrollingEnabled(true);
@@ -287,6 +327,9 @@ public class MainActivity extends AppCompatActivity{
                 break;
             case "saved":
                 currentFragment = newFragment;
+                if (savedFragment == null){
+                    savedFragment = SavedFragment.newInstance();
+                }
                 // Replaces children of content_container with new fragment
                 fragmentTransaction.replace(R.id.content_container, savedFragment);
                 // Disables collapsing toolbar
@@ -299,6 +342,9 @@ public class MainActivity extends AppCompatActivity{
                 break;
             case "recents":
                 currentFragment = newFragment;
+                if (recentsFragment == null){
+                    recentsFragment = RecentsFragment.newInstance();
+                }
                 // Replaces children of content_container with new fragment
                 fragmentTransaction.replace(R.id.content_container, recentsFragment);
                 // Disables collapsing toolbar
@@ -366,76 +412,5 @@ public class MainActivity extends AppCompatActivity{
 
 
 
-    private void testHtml(){
-        String url = "https://en.wikipedia.org/wiki/French_presidential_election,_2017";
 
-    }
-
-
-
-
-
-
-
-    class TestHTML extends AsyncTask<String, Void, Void>{
-
-        private Document htmlDocument;
-        private String htmlPageUrl = "https://en.wikipedia.org/wiki/FED-STD-209E";
-        private String htmlContentInStringFormat;
-        private String articleTitle;
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
-        @Override
-        protected Void doInBackground(String... params) {
-
-            try {
-
-
-                htmlDocument = Jsoup.connect(htmlPageUrl).get();
-                articleTitle = htmlDocument.title();
-
-                // Gets a tag (with all content within it
-                Elements metaElems = htmlDocument.select("meta");
-                // Get attribute from element
-                String name = metaElems.attr("name");
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-
-            readerFragment = (ReaderFragment) getSupportFragmentManager().findFragmentByTag("reader");
-            readerFragment.updateView(articleTitle, "content");
-        }
-    }
-
-
-
-
-
-    // Displays a snackbar
-    private void showSnackbar(boolean interactionAvailable, String action, String message1, final String message2) {
-        // Initialize snackbar that says the article was saved
-        Snackbar snackbar = Snackbar.make(findViewById(R.id.screenspace_container), "Article saved", Snackbar.LENGTH_LONG);
-
-
-        snackbar.setAction(action, new View.OnClickListener() {
-            public void onClick(View view) {
-                Snackbar snackbar2 = Snackbar.make(findViewById(R.id.screenspace_container), message2, Snackbar.LENGTH_SHORT);
-                snackbar2.show();
-            }
-        });
-
-        snackbar.setActionTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorAccent));
-        snackbar.show();
-    }
 }
