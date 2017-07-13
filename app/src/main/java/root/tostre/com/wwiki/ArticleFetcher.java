@@ -84,6 +84,7 @@ public class ArticleFetcher extends AsyncTask<String, Void , ArrayList<String>>{
             }
             Log.d("DBG", "try 4");
             JSONObject json = new JSONObject(sb.toString());
+            String jsonString = json.getJSONObject("parse").getJSONObject("text").getString("*");
             document = documentBuilder.parse(new InputSource(new StringReader(json.getJSONObject("parse").getJSONObject("text").getString("*"))));
             document.getDocumentElement().normalize();
             Log.d("DBG", "try 5");
@@ -92,6 +93,7 @@ public class ArticleFetcher extends AsyncTask<String, Void , ArrayList<String>>{
             tagNode = tagList.item(0);
             tagElement = (Element) tagNode;*/
             articleTextArray.add(json.getJSONObject("parse").getString("title"));
+
             Log.d("DBG", "try 6");
             // Search the extract and add it to the articleArray
             /*tagList = document.getElementsByTagName("extract");

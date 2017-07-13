@@ -25,6 +25,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -77,6 +78,8 @@ public class MainActivity extends AppCompatActivity{
         readerFragment = ReaderFragment.newInstance(article.getTitle(), article.getExtract());
         savedFragment = SavedFragment.newInstance();
         recentsFragment = RecentsFragment.newInstance();
+
+
 
         // Initialize WebView
         WebView wv = (WebView) findViewById(R.id.content_text);
@@ -322,18 +325,18 @@ public class MainActivity extends AppCompatActivity{
         recentArticles.add("Weltall");
         recentArticles.add("Raumfahrt");
 
-        TextView recents_list_text = (TextView) findViewById(R.id.recents_list_text);
+        //TextView recents_list_text = (TextView) findViewById(R.id.recents_list_text);
         //recents_list_text.setText(recentArticles.get(0) + recentArticles.get(1) + recentArticles.get(2) + recentArticles.get(3));
 
-        String text = recents_list_text.getText().toString();;
-
+        //String text = recents_list_text.getText().toString();;
+/*
         for(int i = 1; i < recentArticles.size(); i++){
 
             text += recentArticles.get(i);
             recents_list_text.setText(text);
 
         }
-
+*/
         /*LinearLayout linearLayout = (LinearLayout) findViewById(R.id.recents_list);
 
         LayoutInflater layoutInflater = LayoutInflater.from(this);
