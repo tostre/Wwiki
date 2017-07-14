@@ -1,15 +1,17 @@
-<!--<TextView
-    android:id="@+id/fragment_reader_text"
-    android:layout_width="match_parent"
+<root.tostre.com.wwiki.TouchyWebView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/content_text"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:layout_margin="0dp"
+    android:text="@string/large_text"
     android:textSize="16sp"
     android:lineSpacingExtra="8dp"
-    android:text="@string/debug_long"
-    android:padding="@dimen/activity_horizontal_margin"
-    xmlns:android="http://schemas.android.com/apk/res/android" />-->
+    android:textIsSelectable="true"/>
 
 
-    <WebView
+
+<!--    <WebView
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/content_text"
         android:layout_width="wrap_content"
@@ -18,5 +20,5 @@
         android:text="@string/large_text"
         android:textSize="16sp"
         android:lineSpacingExtra="8dp"
-        android:textIsSelectable="true"/>
+        android:textIsSelectable="true"/>-->
 

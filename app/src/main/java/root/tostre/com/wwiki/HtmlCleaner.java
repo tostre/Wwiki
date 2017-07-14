@@ -18,10 +18,27 @@ public class HtmlCleaner{
 
     }
 
-    public String cleanHtmlString(String dirtyHtml, Whitelist whitelist){
+    public String cleanHtmlString(String dirtyHtml){
+
+
 
         Document doc = Jsoup.parse(dirtyHtml);
-        String cleanHtml = Jsoup.clean(doc.toString(), whitelist);
+
+
+        for (Element element : doc.select("div.XYZ")){
+            element.remove();
+        }
+
+        Elements elements = doc.getElementsByAttributeValue("role", "note");
+        elements.remove();
+        elements = doc.getElementsByTag("sup");
+        elements.remove();
+        elements = doc.getElementsByClass("thumb tright");
+        elements.remove();
+        elements = doc.getElementsByClass("thumb tleft");
+        elements.remove();
+
+        String cleanHtml = Jsoup.clean(doc.toString(), new Whitelist().addTags("p", "span", "a", "b", "h1", "h2", "h3", "h4", "h5", "h6"));
 
         return cleanHtml;
     }

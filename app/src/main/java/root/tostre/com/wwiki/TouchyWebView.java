@@ -26,18 +26,7 @@ public class TouchyWebView extends WebView {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-
-        //Check is required to prevent crash
-        if (MotionEventCompat.findPointerIndex(event, 0) == -1) {
-            return super.onTouchEvent(event);
-        }
-
-        if (event.getPointerCount() >= 2) {
-            requestDisallowInterceptTouchEvent(true);
-        } else {
-            requestDisallowInterceptTouchEvent(false);
-        }
-
+        requestDisallowInterceptTouchEvent(true);
         return super.onTouchEvent(event);
     }
 

@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity{
     private RecentsFragment recentsFragment;
     private int loadingStatus = 0;
     private NestedScrollView content_container;
-    private ConnectivityManager connectivityManager;
+
     private NetworkInfo networkInfo;
     private ArrayList<String> recentArticles;
     private String myTable = "<table border=1>" +
@@ -59,7 +59,8 @@ public class MainActivity extends AppCompatActivity{
             "<td>row 2, cell 2</td>" +
             "</tr>" +
             "</table>";
-    private WebView wv;
+    //
+    private TouchyWebView wv;
 
 
     /**
@@ -73,13 +74,8 @@ public class MainActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Initializes the first article and the fetchers
-        article = new Article();
-
-        // Create bottom menu_navigation bar and its behavior
+        // Create bottom menu_navigation and tollbar
         setBottomBar();
-
-        // Sets the toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -88,8 +84,8 @@ public class MainActivity extends AppCompatActivity{
         progressBar.setVisibility(View.GONE);
 
         // Initialize WebView
+        wv = (TouchyWebView) findViewById(R.id.content_text);
         //wv = (WebView) findViewById(R.id.content_text);
-        wv = (WebView) findViewById(R.id.content_text);
         //wv.getSettings().setJavaScriptEnabled(true);
 
         // Save data that is frequently used
@@ -97,10 +93,8 @@ public class MainActivity extends AppCompatActivity{
 
         // Sets reader fragment as the initial view
         changeContentView("reader");
-
-        // Create whatever's left to create
-        connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
     }
+
 
     /**
      * Additional view initialization: Sets up the toolbar (and
@@ -148,14 +142,13 @@ public class MainActivity extends AppCompatActivity{
         switch (item.getItemId()) {
             case R.id.overflow_search:
                 Intent intent = new Intent(this, SearchActivity.class);
-                // Calls the activity but expects an result value, once it's finished
                 startActivityForResult(intent, 1);
                 return true;
             case R.id.overflow_save:
+                // Debug method
                 updateArticleText("titke", getResources().getString(R.string.large_text));
                 return true;
             case R.id.overflow_delete:
-                addArticleToRecents("HI");
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -200,7 +193,7 @@ public class MainActivity extends AppCompatActivity{
      * methods
      */
 
-    @Override // Gets called when searchActivity has finished, gets xmlUrls from its intent
+    @Override // Gets called when searchActivity has finished, gets jsonUrls from its intent
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
@@ -274,8 +267,6 @@ public class MainActivity extends AppCompatActivity{
 
     // Updates the img-related values in the article, updates view; called from imageFetcher
     public void updateArticleImage(Bitmap image, String imgUrl){
-        article.setImage(image);
-        article.setImgUrl(imgUrl);
 
         // Check if there's an image article
         if(image != null){
@@ -304,46 +295,39 @@ public class MainActivity extends AppCompatActivity{
         CollapsingToolbarLayout collapsingToolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsingToolbar);
         AppBarLayout.LayoutParams params = (AppBarLayout.LayoutParams) collapsingToolbar.getLayoutParams();
 
+        currentFragment = newFragment;
+
         switch (newFragment) {
             case "reader":
-                currentFragment = newFragment;
-                // Replaces children of content_container with new fragment
-                //fragmentTransaction.setCustomAnimations(R.anim.slide_left, R.anim.slide_right);
-
-
-                //readerFragment = ReaderFragment.newInstance(article.getTitle(), article.getExtract());
-                //savedFragment = SavedFragment.newInstance();
-                //recentsFragment = RecentsFragment.newInstance();
 
                 if (readerFragment == null){
-                    readerFragment = ReaderFragment.newInstance(article.getTitle(), article.getExtract());
+                    readerFragment = ReaderFragment.newInstance("", "");
                 }
 
-                fragmentTransaction.replace(R.id.content_container, ReaderFragment.newInstance(article.getTitle(), article.getExtract()), "reader");
+                fragmentTransaction.replace(R.id.content_container, ReaderFragment.newInstance("", ""), "reader");
                 // Enables collapsing toolbar
                 content_container.setNestedScrollingEnabled(true);
-                // Enables toolbar hiding when scrolling
                 params.setScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL | AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS | AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS_COLLAPSED);
-                collapsingToolbar.setLayoutParams(params);
                 invalidateOptionsMenu();
                 break;
+
             case "saved":
-                currentFragment = newFragment;
+
                 if (savedFragment == null){
                     savedFragment = SavedFragment.newInstance();
                 }
+
                 // Replaces children of content_container with new fragment
                 fragmentTransaction.replace(R.id.content_container, savedFragment);
                 // Disables collapsing toolbar
                 appBarLayout.setExpanded(false);
                 content_container.setNestedScrollingEnabled(false);
-                // Disables toolbar hiding when scrolling
                 params.setScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL | AppBarLayout.LayoutParams.SCROLL_FLAG_EXIT_UNTIL_COLLAPSED);
-                //collapsingToolbar.setLayoutParams(params);
                 invalidateOptionsMenu();
                 break;
+
             case "recents":
-                currentFragment = newFragment;
+
                 if (recentsFragment == null){
                     recentsFragment = RecentsFragment.newInstance();
                 }
@@ -352,11 +336,10 @@ public class MainActivity extends AppCompatActivity{
                 // Disables collapsing toolbar
                 appBarLayout.setExpanded(false);
                 content_container.setNestedScrollingEnabled(false);
-                // Disables toolbar hiding when scrolling
                 params.setScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL | AppBarLayout.LayoutParams.SCROLL_FLAG_EXIT_UNTIL_COLLAPSED);
-                //collapsingToolbar.setLayoutParams(params);
-                //invalidateOptionsMenu();
+                invalidateOptionsMenu();
                 break;
+
             default:
                 break;
         }
@@ -364,41 +347,6 @@ public class MainActivity extends AppCompatActivity{
     }
 
 
-    private void addArticleToRecents(String title){
-        //recentArticles.add(title);
-        recentArticles = new ArrayList<String>();
-
-        recentArticles.add("Wikipedia");
-        recentArticles.add("München");
-        recentArticles.add("Weltall");
-        recentArticles.add("Raumfahrt");
-
-        //TextView recents_list_text = (TextView) findViewById(R.id.recents_list_text);
-        //recents_list_text.setText(recentArticles.get(0) + recentArticles.get(1) + recentArticles.get(2) + recentArticles.get(3));
-
-        //String text = recents_list_text.getText().toString();;
-/*
-        for(int i = 1; i < recentArticles.size(); i++){
-
-            text += recentArticles.get(i);
-            recents_list_text.setText(text);
-
-        }
-*/
-        /*LinearLayout linearLayout = (LinearLayout) findViewById(R.id.recents_list);
-
-        LayoutInflater layoutInflater = LayoutInflater.from(this);
-
-        for(int i = 0; i < recentArticles.size(); i++){
-            View view = layoutInflater.inflate(R.layout.subfragment_listitems, linearLayout, false);
-        }
-
-        Log.d("DBG", "WORKED");*/
-
-        //ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.subfragment_listitems, recentArticles);
-        //linearLayout.setAdapter(adapter);
-
-    }
 
 
 

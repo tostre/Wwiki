@@ -70,45 +70,27 @@ public class ArticleFetcher extends AsyncTask<String, Void , ArrayList<String>>{
         articleTextArray = new ArrayList<String>();
 
         try {
-            Log.d("DBG", "try 1");
             documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilder = documentBuilderFactory.newDocumentBuilder();
-            Log.d("DBG", "try 2");
             inputStream = new URL(articleJsonUrl).openStream();
             BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
             StringBuilder sb = new StringBuilder();
             String line = "";
-            Log.d("DBG", "try 3");
             while ((line = br.readLine()) != null) {
                 sb.append(line);
             }
-            Log.d("DBG", "try 4");
+
             JSONObject json = new JSONObject(sb.toString());
-            String jsonString = json.getJSONObject("parse").getJSONObject("text").getString("*");
+            Log.d("DBG", "Json Object * " + json.getJSONObject("parse").getJSONObject("text").getString("*"));
             document = documentBuilder.parse(new InputSource(new StringReader(json.getJSONObject("parse").getJSONObject("text").getString("*"))));
             document.getDocumentElement().normalize();
-            Log.d("DBG", "try 5");
-            // Search the title and add it to the articleArray
-            /*tagList = document.getElementsByTagName("parse");
-            tagNode = tagList.item(0);
-            tagElement = (Element) tagNode;*/
+
             articleTextArray.add(json.getJSONObject("parse").getString("title"));
 
-            Log.d("DBG", "try 6");
-            // Search the extract and add it to the articleArray
-            /*tagList = document.getElementsByTagName("extract");
-            tagNode = tagList.item(0);
-            articleTextArray.add(tagNode.getTextContent());*/
 
-            // Get the text-content
-            /*tagList = document.getElementsByTagName("text");
-            tagNode = tagList.item(0);
-            String textp = ((Element) tagNode).getTextContent();*/
-            // Clean the document
             String textp = json.getJSONObject("parse").getJSONObject("text").getString("*");
-            textp = new HtmlCleaner().cleanHtmlString(textp, Whitelist.relaxed());
+            textp = new HtmlCleaner().cleanHtmlString(textp);
             articleTextArray.add(textp);
-            Log.d("DBG", "try 7");
             // Add the url to the articleArray
             articleTextArray.add(articleJsonUrl);
             inputStream.close();
@@ -133,6 +115,7 @@ public class ArticleFetcher extends AsyncTask<String, Void , ArrayList<String>>{
         // Overwrite the current article
 
         mainActivity.updateArticleText(articleTextArray.get(0), articleTextArray.get(1));
+        Log.d("DBG", "text array: " + articleTextArray.get(0) + "\n" + articleTextArray.get(1));
         try {
             inputStream.close();
         } catch (IOException e) {
