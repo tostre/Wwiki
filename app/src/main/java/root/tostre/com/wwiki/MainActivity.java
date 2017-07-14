@@ -61,6 +61,7 @@ public class MainActivity extends AppCompatActivity{
             "</table>";
     private WebView wv;
 
+
     /**
      * Initializes the view and sets up variables that are used
      * later in the app
@@ -87,6 +88,7 @@ public class MainActivity extends AppCompatActivity{
         progressBar.setVisibility(View.GONE);
 
         // Initialize WebView
+        //wv = (WebView) findViewById(R.id.content_text);
         wv = (WebView) findViewById(R.id.content_text);
         //wv.getSettings().setJavaScriptEnabled(true);
 
@@ -267,7 +269,7 @@ public class MainActivity extends AppCompatActivity{
         }
 
         readerFragment = (ReaderFragment) getSupportFragmentManager().findFragmentByTag("reader");
-        readerFragment.updateView(title, text);
+        //readerFragment.updateView(title, text);
     }
 
     // Updates the img-related values in the article, updates view; called from imageFetcher
