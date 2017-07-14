@@ -67,6 +67,7 @@
     <string-array name="wikis">
         <item>Wikipedia (En)</item>
         <item>Wikipedia (De)</item>
+        <item>+ Add new Wiki</item>
     </string-array>
 
 

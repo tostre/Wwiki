@@ -1,19 +1,25 @@
 package root.tostre.com.wwiki;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
+import android.text.InputType;
+import android.text.Layout;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
@@ -53,7 +59,6 @@ public class SearchActivity extends AppCompatActivity {
         progressBar.setVisibility(View.GONE);
     }
 
-
     private void setSpinnerListener(Spinner wikiChooser){
         wikiChooser.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -71,6 +76,44 @@ public class SearchActivity extends AppCompatActivity {
                         apiEndpointSearch = "https://de.wikipedia.org/w/api.php?action=query&list=search&srlimit=20&format=json&srsearch=";
                         loadSearchResults();
                         break;
+                    case 2:
+                        //new NewWikiDialog().show();
+                        //AlertDialog.Builder mBuilder = new AlertDialog.Builder(SearchActivity.this);
+                        //View mView = getLayoutInflater().inflate()
+
+
+
+                        AlertDialog.Builder builder = new AlertDialog.Builder(SearchActivity.this);
+                        builder.setTitle("Title");
+
+                        // Set up the input
+                        final EditText input = new EditText(SearchActivity.this);
+                        // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+                        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                        //builder.setView(input);
+
+
+                        LayoutInflater inflater = getLayoutInflater();
+                        builder.setView(inflater.inflate(R.layout.dialog_newwiki, null));
+
+
+                        // Set up the buttons
+                        builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                String m_Text = input.getText().toString();
+                            }
+                        });
+
+                        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        });
+
+                        builder.show();
+                        break;
                 }
             }
 
@@ -79,6 +122,10 @@ public class SearchActivity extends AppCompatActivity {
             }
         });
     }
+
+
+
+
 
     @Override //
     public boolean onCreateOptionsMenu(Menu menu) {

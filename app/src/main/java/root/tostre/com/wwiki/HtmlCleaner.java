@@ -19,15 +19,7 @@ public class HtmlCleaner{
     }
 
     public String cleanHtmlString(String dirtyHtml){
-
-
-
         Document doc = Jsoup.parse(dirtyHtml);
-
-
-        for (Element element : doc.select("div.XYZ")){
-            element.remove();
-        }
 
         Elements elements = doc.getElementsByAttributeValue("role", "note");
         elements.remove();

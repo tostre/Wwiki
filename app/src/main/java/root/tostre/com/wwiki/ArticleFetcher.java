@@ -59,7 +59,6 @@ public class ArticleFetcher extends AsyncTask<String, Void , ArrayList<String>>{
 
     @Override
     protected void onPreExecute() {
-        //progressBar = (ProgressBar) mainActivity.findViewById(R.id.text_progressBar);
         progressBar = (ProgressBar) mainActivity.findViewById(R.id.image_progressBar);
         progressBar.setVisibility(View.VISIBLE);
     }
@@ -112,10 +111,8 @@ public class ArticleFetcher extends AsyncTask<String, Void , ArrayList<String>>{
 
     @Override // Called when doInBackground is finished
     protected void onPostExecute(ArrayList<String> articleTextArray) {
-        // Overwrite the current article
-
         mainActivity.updateArticleText(articleTextArray.get(0), articleTextArray.get(1));
-        Log.d("DBG", "text array: " + articleTextArray.get(0) + "\n" + articleTextArray.get(1));
+
         try {
             inputStream.close();
         } catch (IOException e) {
