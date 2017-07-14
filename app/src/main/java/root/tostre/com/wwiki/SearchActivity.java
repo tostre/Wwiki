@@ -1,6 +1,7 @@
 package root.tostre.com.wwiki;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -11,8 +12,6 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
-import android.text.InputType;
-import android.text.Layout;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -25,11 +24,9 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.Timer;
 
 public class SearchActivity extends AppCompatActivity {
 
@@ -50,6 +47,9 @@ public class SearchActivity extends AppCompatActivity {
     private Handler handler = new Handler();
     private Runnable runnable;
     private Menu menu;
+    private Spinner wikiChooser;
+    private ArrayList<String> nameList = new ArrayList<>();
+    private ArrayList<String> endpointList = new ArrayList<>();
 
     private SharedPreferences sharedPref;
 
@@ -59,25 +59,12 @@ public class SearchActivity extends AppCompatActivity {
         setContentView(R.layout.activity_search);
 
         // Creates and populates the WIki-Chooser
-        Spinner wikiChooser = (Spinner) findViewById(R.id.wiki_chooser);
+        wikiChooser = (Spinner) findViewById(R.id.wiki_chooser);
 
-        sharedPref = getSharedPreferences("tostre.wwiki.wikilist", Context.MODE_PRIVATE);
-        Map<String, ?> wikis = sharedPref.getAll();
-        ArrayList<String> wikiNames = new ArrayList<>();
-        ArrayList<String> wikiEndpoints = new ArrayList<>();
-
-        for(Map.Entry<String,?> entry : wikis.entrySet()){
-            /*Log.d("DBG",entry.getKey() + ": " +
-                    entry.getValue().toString());*/
-            wikiNames.add(entry.getKey());
-            wikiEndpoints.add((String) entry.getValue());
-        }
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.subfragment_spinner, wikiNames);
-
-        // Apply the adapter to the spinner
-        wikiChooser.setAdapter(adapter);
+        populateSpinner();
         setSpinnerListener(wikiChooser);
+
+
         // Sets listener on listView
         startArticleLoaderFromList();
         getSupportActionBar().setElevation(0);
@@ -86,31 +73,42 @@ public class SearchActivity extends AppCompatActivity {
         progressBar.setVisibility(View.GONE);
     }
 
-    public void saveWiki(View view){
+    private void populateSpinner(){
+        sharedPref = getSharedPreferences("tostre.wwiki.wikilist", Context.MODE_PRIVATE);
+        Map<String, ?> wikis = sharedPref.getAll();
+        // Clear spinner, so entries don't appear double when new wiki was saved
+        nameList.clear();
+        wikiChooser.setAdapter(null);
+        // Stores names and enpoints from shared preferences in arraylists
+        for(Map.Entry<String,?> entry : wikis.entrySet()){
+            nameList.add(entry.getKey());
+            endpointList.add((String) entry.getValue());
+        }
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.subfragment_spinner, nameList);
+        // Apply the adapter to the spinner
+        wikiChooser.setAdapter(adapter);
+    }
+
+    public void openSaveDialog(View view){
         AlertDialog.Builder builder = new AlertDialog.Builder(SearchActivity.this);
         builder.setTitle("Add new Wiki");
-
-        // Set up the input
-        final EditText input = new EditText(SearchActivity.this);
-        // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
-        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-        //builder.setView(input);
-
-
         final LayoutInflater inflater = getLayoutInflater();
         builder.setView(inflater.inflate(R.layout.dialog_newwiki, null));
 
-
-        // Set up the buttons
+        // Set up buttons and their behavior
         builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                //String m_Text = input.getText().toString();
-                //String wikiname = findViewById(R.id.newwiki_name).toString();
-                //String wikiendpoint = findViewById(R.id.newwiki_endpoint).toString();
-
-                //View view = ;
-                EditText editTextName = (EditText) inflater.inflate(R.layout.dialog_newwiki, null).findViewById(R.id.newwiki_name);
+                Dialog newWikiDialog = (Dialog) dialog;
+                // Get text from input fields
+                EditText nameInput = (EditText) newWikiDialog.findViewById(R.id.newwiki_name);
+                EditText endpointInput = (EditText) newWikiDialog.findViewById(R.id.newwiki_endpoint);
+                String newWiki = nameInput.getText().toString();
+                String newEndpoint = endpointInput.getText().toString();
+                // Save new wiki to shared preferences
+                saveWiki(newWiki, newEndpoint);
+                populateSpinner();
             }
         });
 
@@ -124,34 +122,15 @@ public class SearchActivity extends AppCompatActivity {
         builder.show();
     }
 
+    // Adds listener to entries in spinner and updates the api-urls when tapped
     private void setSpinnerListener(Spinner wikiChooser){
         wikiChooser.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                switch(position){
-                    case 0:
-                        apiEndpointArticle = "https://en.wikipedia.org/w/api.php?format=json&redirects=yes&action=parse&disableeditsection=true&page=";
-                        apiEndpointImg ="https://en.wikipedia.org/w/api.php?action=query&prop=pageimages&piprop=original&format=json&titles=";
-                        apiEndpointSearch = "https://en.wikipedia.org/w/api.php?action=query&list=search&srlimit=20&format=json&srsearch=";
-
-                        apiEndpointArticle = end + apiParamsArticle;
-
-                        loadSearchResults();
-                        break;
-                    case 1:
-                        apiEndpointArticle = "https://de.wikipedia.org/w/api.php?format=json&redirects=yes&action=parse&disableeditsection=true&page=";
-                        apiEndpointImg ="https://de.wikipedia.org/w/api.php?action=query&prop=pageimages&piprop=original&format=json&titles=";
-                        apiEndpointSearch = "https://de.wikipedia.org/w/api.php?action=query&list=search&srlimit=20&format=json&srsearch=";
-                        loadSearchResults();
-                        break;
-                    case 2:
-                        //new NewWikiDialog().show();
-                        //AlertDialog.Builder mBuilder = new AlertDialog.Builder(SearchActivity.this);
-                        //View mView = getLayoutInflater().inflate()
-
-
-                        break;
-                }
+                apiEndpointArticle = endpointList.get(position) + apiParamsArticle;
+                apiEndpointImg = endpointList.get(position) + apiParamsImg;
+                apiEndpointSearch = endpointList.get(position) + apiParamsSearch;
+                loadSearchResults();
             }
 
             @Override
@@ -160,38 +139,12 @@ public class SearchActivity extends AppCompatActivity {
         });
     }
 
-    private void saveWiki(String wiki, String endpoint){
-        /*Context context = SearchActivity.this;
-        SharedPreferences sharedPreferences = context.getSharedPreferences(getString(R.string.shared_preference_wikis), Context.MODE_PRIVATE);
-
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("Wikipedia (DE)", "Wikipedia DE");
-        editor.commit();*/
-
-        // Gain acces to file
+    // Saves params to wiki-shared preferences
+    private void saveWiki(String newWiki, String newEndpoint){
         SharedPreferences sharedPref = getSharedPreferences("tostre.wwiki.wikilist", Context.MODE_PRIVATE);
-
         SharedPreferences.Editor editor = sharedPref.edit();
-        //editor.putString(wiki, endpoint);
-        //editor.putString("wiki2", "endpoint");
-        //editor.putString("wiki3", "endpoint2");
+        editor.putString(newWiki, newEndpoint);
         editor.apply();
-
-        Map<String, ?> values = sharedPref.getAll();
-
-        /*
-        for(Map.Entry<String,?> entry : values.entrySet()){
-            Log.d("DBG",entry.getKey() + ": " +
-                    entry.getValue().toString());
-        }
-
-
-        // SHow saved data
-        String name = sharedPref.getString("Wikipedia (NL)", "");
-        Log.d("DBG", "sharedPRef: " + name);*/
-
-
-
     }
 
 
@@ -219,13 +172,7 @@ public class SearchActivity extends AppCompatActivity {
                 runnable = new Runnable() {
                     @Override
                     public void run() {
-                        SearchFetcher searchFetcher = new SearchFetcher(SearchActivity.this);
-                        searchFetcher.execute(searchView.getQuery().toString(), apiEndpointSearch);
                         loadSearchResults();
-                        /*
-                        Log.d("DBG", "runnable");
-                        Log.d("DBG", "getQuery" + searchView.getQuery().toString());
-                        Log.d("DBG", "searchEP" + apiEndpointSearch);*/
                     }
                 };
 

@@ -29,8 +29,12 @@ public class HtmlCleaner{
         elements.remove();
         elements = doc.getElementsByClass("thumb tleft");
         elements.remove();
+        elements = doc.getElementsByClass("reflist columns references-column-width");
+        elements.remove();
+        elements = doc.getElementsByAttributeValue("role", "note");
+        elements.remove();
 
-        String cleanHtml = Jsoup.clean(doc.toString(), new Whitelist().addTags("p", "span", "a", "b", "h1", "h2", "h3", "h4", "h5", "h6"));
+        String cleanHtml = Jsoup.clean(doc.toString(), new Whitelist().addTags("p", "span", "a", "b", "h1", "h2", "h3", "h4", "h5", "h6", "li", "ol", "ul"));
 
         return cleanHtml;
     }

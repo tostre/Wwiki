@@ -53,7 +53,7 @@
             android:layout_marginTop="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
             android:layout_marginBottom="0dp"
-            android:onClick="saveWiki"/>
+            android:onClick="openSaveDialog"/>
 
     </android.support.constraint.ConstraintLayout>
 
