@@ -10,4 +10,9 @@
         app:showAsAction="ifRoom|collapseActionView"
         app:actionViewClass="android.support.v7.widget.SearchView"/>
 
+    <item
+        android:id="@+id/action_addWiki"
+        android:title="Add Wiki"
+        app:showAsAction="never"/>
+
 </menu>

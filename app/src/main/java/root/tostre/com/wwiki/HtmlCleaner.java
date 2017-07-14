@@ -34,7 +34,7 @@ public class HtmlCleaner{
         elements = doc.getElementsByAttributeValue("role", "note");
         elements.remove();
 
-        String cleanHtml = Jsoup.clean(doc.toString(), new Whitelist().addTags("p", "span", "a", "b", "h1", "h2", "h3", "h4", "h5", "h6", "li", "ol", "ul"));
+        String cleanHtml = Jsoup.clean(doc.toString(), new Whitelist().addTags("p", "span", "a", "b", "h1", "h2", "h3", "h4", "h5", "h6", "li", "ol", "ul", "href"));
 
         return cleanHtml;
     }

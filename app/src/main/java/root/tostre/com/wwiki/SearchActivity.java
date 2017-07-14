@@ -7,12 +7,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -32,40 +30,28 @@ import java.util.TimerTask;
 
 public class SearchActivity extends AppCompatActivity {
 
-    private ArrayList<String> articleList;
-    private ArrayList<String> urlList;
-    private String url;
+    private ArrayList<String> searchResults;
     private String apiEndpointArticle = "https://en.wikipedia.org/w/api.php?format=json&redirects=yes&action=parse&disableeditsection=true&page=";
     private String apiEndpointImg ="https://en.wikipedia.org/w/api.php?action=query&prop=pageimages&piprop=original&format=json&titles=";
     private String apiEndpointSearch = "https://en.wikipedia.org/w/api.php?action=query&list=search&srlimit=20&format=json&srsearch=";
-
-    private String end = "https://en.wikipedia.org/w/api.php";
-    private String art = "water";
-
     private String apiParamsArticle = "?format=json&redirects=yes&action=parse&disableeditsection=true&page=";
     private String apiParamsImg = "?action=query&prop=pageimages&piprop=original&format=json&titles=";
     private String apiParamsSearch = "?action=query&list=search&srlimit=20&format=json&srsearch=";
-
-    private Handler handler = new Handler();
-    private Runnable runnable;
     private Menu menu;
     private Spinner wikiChooser;
     private ArrayList<String> nameList = new ArrayList<>();
     private ArrayList<String> endpointList = new ArrayList<>();
-
     private SharedPreferences sharedPref;
 
-    @Override
+    @Override // Calles when activity is created
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
 
-        // Creates and populates the WIki-Chooser
+        // Creates and populates the WIki-Chooser and its behavior
         wikiChooser = (Spinner) findViewById(R.id.wiki_chooser);
-
         populateSpinner();
         setSpinnerListener(wikiChooser);
-
 
         // Sets listener on listView
         startArticleLoaderFromList();
@@ -75,6 +61,72 @@ public class SearchActivity extends AppCompatActivity {
         progressBar.setVisibility(View.GONE);
     }
 
+    @Override // Creates options menu, sets behavior
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_search, menu);
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        this.menu = menu;
+
+        final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        searchItem.expandActionView();
+
+        // LIstens for a change in the search-text
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            private Timer timer=new Timer();
+            private final long DELAY = 500; // milliseconds
+
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override // Start search after user has stopped typing for 500ms
+            public boolean onQueryTextChange(String newText) {
+
+
+                timer.cancel();
+                timer = new Timer();
+                timer.schedule(
+                        new TimerTask() {
+                            @Override
+                            public void run() {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        loadSearchResults();
+                                    }
+                                });
+                            }
+                        }, DELAY);
+
+                return true;
+            }
+        });
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override // Activity closes when back key is pressed
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_BACK:
+                finish();
+        }
+        return false;
+    }
+
+    // Defines what happens when an menu_overflow-menu item is selected
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.action_addWiki:
+                openSaveDialog();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    // Loads saved wikis into the spinner
     private void populateSpinner(){
         sharedPref = getSharedPreferences("tostre.wwiki.wikilist", Context.MODE_PRIVATE);
         Map<String, ?> wikis = sharedPref.getAll();
@@ -92,7 +144,25 @@ public class SearchActivity extends AppCompatActivity {
         wikiChooser.setAdapter(adapter);
     }
 
-    public void openSaveDialog(View view){
+    // Adds listener to entries in spinner and updates the api-urls when tapped
+    private void setSpinnerListener(Spinner wikiChooser){
+        wikiChooser.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                apiEndpointArticle = endpointList.get(position) + apiParamsArticle;
+                apiEndpointImg = endpointList.get(position) + apiParamsImg;
+                apiEndpointSearch = endpointList.get(position) + apiParamsSearch;
+                loadSearchResults();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+    }
+
+    // Opens save-dialog, handles inputs when "ADD" is clicked
+    public void openSaveDialog(){
         AlertDialog.Builder builder = new AlertDialog.Builder(SearchActivity.this);
         builder.setTitle("Add new Wiki");
         final LayoutInflater inflater = getLayoutInflater();
@@ -124,23 +194,6 @@ public class SearchActivity extends AppCompatActivity {
         builder.show();
     }
 
-    // Adds listener to entries in spinner and updates the api-urls when tapped
-    private void setSpinnerListener(Spinner wikiChooser){
-        wikiChooser.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                apiEndpointArticle = endpointList.get(position) + apiParamsArticle;
-                apiEndpointImg = endpointList.get(position) + apiParamsImg;
-                apiEndpointSearch = endpointList.get(position) + apiParamsSearch;
-                loadSearchResults();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        });
-    }
-
     // Saves params to wiki-shared preferences
     private void saveWiki(String newWiki, String newEndpoint){
         SharedPreferences sharedPref = getSharedPreferences("tostre.wwiki.wikilist", Context.MODE_PRIVATE);
@@ -149,52 +202,11 @@ public class SearchActivity extends AppCompatActivity {
         editor.apply();
     }
 
+    /**
+     * This block sends and receives data to and from the search fetcher
+     */
 
-
-    @Override //
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_search, menu);
-        MenuItem searchItem = menu.findItem(R.id.action_search);
-        this.menu = menu;
-
-        final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
-        searchItem.expandActionView();
-
-
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            private Timer timer=new Timer();
-            private final long DELAY = 500; // milliseconds
-
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                return false;
-            }
-
-            @Override // Start search after user has stopped typing for 500ms
-            public boolean onQueryTextChange(String newText) {
-
-
-                timer.cancel();
-                timer = new Timer();
-                timer.schedule(
-                        new TimerTask() {
-                            @Override
-                            public void run() {
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        loadSearchResults();
-                                    }
-                                });
-                            }
-                        }, DELAY);
-                
-                return true;
-            }
-        });
-        return super.onCreateOptionsMenu(menu);
-    }
-
+    // Calls search fetcher and hands over a search-url
     private void loadSearchResults(){
         MenuItem searchItem = menu.findItem(R.id.action_search);
         SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
@@ -205,14 +217,18 @@ public class SearchActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        switch (keyCode) {
-            case KeyEvent.KEYCODE_BACK:
-            finish();
-        }
-        return false;
+    // Updates the listView with search results gotten from the SearchFetcher
+    public void updateSearchResultsList(ArrayList<String> searchResults){
+        this.searchResults = searchResults;
+        // Populates the listview with the search results
+        ListView listView = (ListView) findViewById(R.id.search_results);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.subfragment_listitems, searchResults);
+        listView.setAdapter(adapter);
     }
+
+    /**
+     *
+     */
 
     // Creates listener for listView that load the article from the listitem
     private void startArticleLoaderFromList(){
@@ -221,8 +237,6 @@ public class SearchActivity extends AppCompatActivity {
         search_results.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String selectedFromList = (String) search_results.getItemAtPosition(position);
-
                 // Creates a searchable URL from the item clicked in the list
                 String url = extractUrl(position);
                 String imgUrl = extractImageUrl(position);
@@ -236,31 +250,20 @@ public class SearchActivity extends AppCompatActivity {
         });
     }
 
-    // Updates the listView with search results gotten from the SearchFetcher
-    public void updateSearchResultsList(ArrayList<String> articleList){
-        this.articleList = articleList;
-        // Populates the listview with the search results
-        ListView listView = (ListView) findViewById(R.id.search_results);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.subfragment_listitems, articleList);
-        listView.setAdapter(adapter);
-    }
-
     // Creates an url from the title of a page
     public String extractUrl(int position){
-        urlList = new ArrayList<String>();
-        String title = articleList.get(position);
+        String title = searchResults.get(position);
         title = title.replaceAll("\\s+", "%20");
-        url = apiEndpointArticle + title;
+        String url = apiEndpointArticle + title;
 
         return url;
     }
 
     // Creates an imageurl from the title of a page
     public String extractImageUrl(int position){
-        urlList = new ArrayList<String>();
-        String title = articleList.get(position);
+        String title = searchResults.get(position);
         title = title.replaceAll("\\s+", "%20");
-        url = apiEndpointImg + title;
+        String url = apiEndpointImg + title;
 
         return url;
     }
