@@ -27,6 +27,8 @@ import android.widget.Spinner;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class SearchActivity extends AppCompatActivity {
 
@@ -158,26 +160,35 @@ public class SearchActivity extends AppCompatActivity {
         final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
         searchItem.expandActionView();
 
+
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            private Timer timer=new Timer();
+            private final long DELAY = 500; // milliseconds
+
             @Override
             public boolean onQueryTextSubmit(String query) {
                 return false;
             }
 
-            @Override
+            @Override // Start search after user has stopped typing for 500ms
             public boolean onQueryTextChange(String newText) {
-                // Commit search after user has stopped typing for 300ms
-                handler.removeCallbacks(runnable);
 
-                runnable = new Runnable() {
-                    @Override
-                    public void run() {
-                        loadSearchResults();
-                    }
-                };
 
-                handler.postDelayed(runnable, 300);
-
+                timer.cancel();
+                timer = new Timer();
+                timer.schedule(
+                        new TimerTask() {
+                            @Override
+                            public void run() {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        loadSearchResults();
+                                    }
+                                });
+                            }
+                        }, DELAY);
+                
                 return true;
             }
         });
