@@ -2,6 +2,7 @@ package root.tostre.com.wwiki;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
@@ -36,6 +37,7 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity{
 
@@ -93,6 +95,28 @@ public class MainActivity extends AppCompatActivity{
 
         // Sets reader fragment as the initial view
         changeContentView("reader");
+
+
+        createDefaultWikis();
+    }
+
+    private void test(){
+        SharedPreferences sharedPref = getSharedPreferences("tostre.wwiki.wikilist", Context.MODE_PRIVATE);
+        Map<String, ?> values = sharedPref.getAll();
+
+        for(Map.Entry<String,?> entry : values.entrySet()){
+            Log.d("DBG",entry.getKey() + ": " +
+                    entry.getValue().toString());
+        }
+    }
+
+    private void createDefaultWikis(){
+        SharedPreferences sharedPref = getSharedPreferences("tostre.wwiki.wikilist", Context.MODE_PRIVATE);
+
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString("Wikipedia (EN)", "https://en.wikipedia.org/w/api.php");
+        editor.putString("Wikipedia (DE)", "https://de.wikipedia.org/w/api.php");
+        editor.apply();
     }
 
 

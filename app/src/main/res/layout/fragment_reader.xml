@@ -3,10 +3,9 @@
     android:id="@+id/content_text"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_margin="0dp"
+    android:layout_margin="4dp"
     android:text="@string/large_text"
     android:textSize="16sp"
-    android:lineSpacingExtra="8dp"
     android:textIsSelectable="true"/>
 
 
@@ -16,9 +15,8 @@
         android:id="@+id/content_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="0dp"
+        android:layout_margin="4p"
         android:text="@string/large_text"
         android:textSize="16sp"
-        android:lineSpacingExtra="8dp"
         android:textIsSelectable="true"/>-->
 

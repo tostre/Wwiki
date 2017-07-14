@@ -1,8 +1,10 @@
 package root.tostre.com.wwiki;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.view.MenuItemCompat;
@@ -23,8 +25,10 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Timer;
 
 public class SearchActivity extends AppCompatActivity {
@@ -35,6 +39,14 @@ public class SearchActivity extends AppCompatActivity {
     private String apiEndpointArticle = "https://en.wikipedia.org/w/api.php?format=json&redirects=yes&action=parse&disableeditsection=true&page=";
     private String apiEndpointImg ="https://en.wikipedia.org/w/api.php?action=query&prop=pageimages&piprop=original&format=json&titles=";
     private String apiEndpointSearch = "https://en.wikipedia.org/w/api.php?action=query&list=search&srlimit=20&format=json&srsearch=";
+
+    private String end = "https://en.wikipedia.org/w/api.php";
+    private String art = "water";
+
+    private String apiParamsArticle = "?format=json&redirects=yes&action=parse&disableeditsection=true&page=";
+    private String apiParamsImg = "?action=query&prop=pageimages&piprop=original&format=json&titles=";
+    private String apiParamsSearch = "?action=query&list=search&srlimit=20&format=json&srsearch=";
+
     private Handler handler = new Handler();
     private Runnable runnable;
     private Menu menu;
@@ -46,11 +58,29 @@ public class SearchActivity extends AppCompatActivity {
 
         // Creates and populates the WIki-Chooser
         Spinner wikiChooser = (Spinner) findViewById(R.id.wiki_chooser);
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.wikis, R.layout.subfragment_spinner);
+        //ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.wikis, R.layout.subfragment_spinner);
+        //ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.subfragment_spinner);
+
+
+        SharedPreferences sharedPref = getSharedPreferences("tostre.wwiki.wikilist", Context.MODE_PRIVATE);
+        Map<String, ?> wikis = sharedPref.getAll();
+
+        ArrayList<String> wikiNames = new ArrayList<>();
+        ArrayList<String> wikiEndpoints = new ArrayList<>();
+
+        for(Map.Entry<String,?> entry : wikis.entrySet()){
+            Log.d("DBG",entry.getKey() + ": " +
+                    entry.getValue().toString());
+            wikiNames.add(entry.getKey());
+            wikiEndpoints.add((String) entry.getValue());
+        }
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.subfragment_spinner, wikiNames);
+
+
         // Apply the adapter to the spinner
         wikiChooser.setAdapter(adapter);
         setSpinnerListener(wikiChooser);
-
         // Sets listener on listView
         startArticleLoaderFromList();
         getSupportActionBar().setElevation(0);
@@ -68,6 +98,9 @@ public class SearchActivity extends AppCompatActivity {
                         apiEndpointArticle = "https://en.wikipedia.org/w/api.php?format=json&redirects=yes&action=parse&disableeditsection=true&page=";
                         apiEndpointImg ="https://en.wikipedia.org/w/api.php?action=query&prop=pageimages&piprop=original&format=json&titles=";
                         apiEndpointSearch = "https://en.wikipedia.org/w/api.php?action=query&list=search&srlimit=20&format=json&srsearch=";
+
+                        apiEndpointArticle = end + apiParamsArticle;
+
                         loadSearchResults();
                         break;
                     case 1:
@@ -81,10 +114,8 @@ public class SearchActivity extends AppCompatActivity {
                         //AlertDialog.Builder mBuilder = new AlertDialog.Builder(SearchActivity.this);
                         //View mView = getLayoutInflater().inflate()
 
-
-
                         AlertDialog.Builder builder = new AlertDialog.Builder(SearchActivity.this);
-                        builder.setTitle("Title");
+                        builder.setTitle("Add new Wiki");
 
                         // Set up the input
                         final EditText input = new EditText(SearchActivity.this);
@@ -101,7 +132,10 @@ public class SearchActivity extends AppCompatActivity {
                         builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                String m_Text = input.getText().toString();
+                                //String m_Text = input.getText().toString();
+                                //String wikiname = findViewById(R.id.newwiki_name).toString();
+                                //String wikiendpoint = findViewById(R.id.newwiki_endpoint).toString();
+                                saveWiki("Wikipedia (NL)", "https://nl.wikipedia.com");
                             }
                         });
 
@@ -123,7 +157,38 @@ public class SearchActivity extends AppCompatActivity {
         });
     }
 
+    private void saveWiki(String wiki, String endpoint){
+        /*Context context = SearchActivity.this;
+        SharedPreferences sharedPreferences = context.getSharedPreferences(getString(R.string.shared_preference_wikis), Context.MODE_PRIVATE);
 
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("Wikipedia (DE)", "Wikipedia DE");
+        editor.commit();*/
+
+        // Gain acces to file
+        SharedPreferences sharedPref = getSharedPreferences("tostre.wwiki.wikilist", Context.MODE_PRIVATE);
+
+        SharedPreferences.Editor editor = sharedPref.edit();
+        //editor.putString(wiki, endpoint);
+        //editor.putString("wiki2", "endpoint");
+        //editor.putString("wiki3", "endpoint2");
+        editor.apply();
+
+        Map<String, ?> values = sharedPref.getAll();
+
+        for(Map.Entry<String,?> entry : values.entrySet()){
+            Log.d("DBG",entry.getKey() + ": " +
+                    entry.getValue().toString());
+        }
+
+
+        // SHow saved data
+        String name = sharedPref.getString("Wikipedia (NL)", "");
+        Log.d("DBG", "sharedPRef: " + name);
+
+
+
+    }
 
 
 

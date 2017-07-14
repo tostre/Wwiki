@@ -1,4 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/listentry_border">
+
+    <TextView
+        android:text="Vacuum Decay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="16dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:textSize="16dp">
+    </TextView>
+
+    <TextView
+        android:text="Offline verfügbar, aufgerufen am 23.06.2017"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:textSize="12dp"
+        android:paddingLeft="16dp"
+        android:paddingBottom="16dp"
+        android:paddingRight="16dp">
+    </TextView>
+
+
+
+
+</LinearLayout>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!--
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
     android:text="Vacuum Decay"
     android:layout_width="match_parent"
@@ -8,3 +57,4 @@
     android:padding="16dp"
     android:textSize="16dp">
 </TextView>
+    -->

@@ -70,6 +70,8 @@
         <item>+ Add new Wiki</item>
     </string-array>
 
+    <!-- Shared preferences files -->
+    <string name="shared_preference_wikis">tostre.com.wwiki.shared_preference_wikis</string>
 
     <!-- Example General settings -->
     <string name="pref_header_general">General</string>
