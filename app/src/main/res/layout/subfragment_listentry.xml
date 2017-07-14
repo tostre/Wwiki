@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
+    android:id="@+id/savedRecentsListItem"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -7,6 +8,7 @@
     android:background="@drawable/listentry_border">
 
     <TextView
+        android:id="@+id/savedRecentsListItem_title"
         android:text="Vacuum Decay"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -18,6 +20,7 @@
     </TextView>
 
     <TextView
+        android:id="@+id/savedRecentsListItem_info"
         android:text="Offline verfügbar, aufgerufen am 23.06.2017"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

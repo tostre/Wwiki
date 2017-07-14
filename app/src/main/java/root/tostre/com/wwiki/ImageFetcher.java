@@ -148,8 +148,8 @@ public class ImageFetcher extends AsyncTask<String, Void, Bitmap> {
 
         image = Bitmap.createScaledBitmap(image, imageWidth, imageHeight, true);
 
-        Log.d("DBG", "imgHeight: " + Integer.toString(imageHeight) + "\n");
-        Log.d("DBG", "imgWidth: " + Integer.toString(imageWidth) + "\n");
+        //Log.d("DBG", "imgHeight: " + Integer.toString(imageHeight) + "\n");
+        //Log.d("DBG", "imgWidth: " + Integer.toString(imageWidth) + "\n");
 
         return image;
     }

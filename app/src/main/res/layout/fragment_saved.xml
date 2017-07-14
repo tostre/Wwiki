@@ -1,19 +1,35 @@
-<!--<TextView android:layout_width="match_parent"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/recents_list"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:textSize="28sp"
-    android:lineSpacingExtra="8dp"
-    android:text="@string/debug_long2"
-    android:padding="@dimen/activity_horizontal_margin"
-    xmlns:android="http://schemas.android.com/apk/res/android" />-->
-<TextView android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:textSize="28sp"
-    android:lineSpacingExtra="8dp"
-    android:text="@string/debug_long"
-    android:padding="@dimen/activity_horizontal_margin"
-    xmlns:android="http://schemas.android.com/apk/res/android" />
+    android:orientation="vertical">
 
 
+    <include layout="@layout/subfragment_listentry"/>
+
+    <include layout="@layout/subfragment_listentry"/>
+
+    <include layout="@layout/subfragment_listentry"/>
+
+    <include layout="@layout/subfragment_listentry"/>
+
+    <include layout="@layout/subfragment_listentry"/>
+
+    <include layout="@layout/subfragment_listentry"/>
+
+    <include layout="@layout/subfragment_listentry"/>
+
+    <include layout="@layout/subfragment_listentry"/>
+
+    <include layout="@layout/subfragment_listentry"/>
+
+    <include layout="@layout/subfragment_listentry"/>
+
+    <include layout="@layout/subfragment_listentry"/>
+
+    <include layout="@layout/subfragment_listentry"/>
 
 
+</LinearLayout>
 

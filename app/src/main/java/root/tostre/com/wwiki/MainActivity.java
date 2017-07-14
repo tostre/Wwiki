@@ -21,6 +21,7 @@ import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -48,6 +49,11 @@ public class MainActivity extends AppCompatActivity{
     private RecentsFragment recentsFragment;
     private int loadingStatus = 0;
     private NestedScrollView content_container;
+
+    private String text;
+    private String title;
+    private String articleUrl;
+    private String imgUrl;
 
     private NetworkInfo networkInfo;
     private ArrayList<String> recentArticles;
@@ -110,6 +116,10 @@ public class MainActivity extends AppCompatActivity{
         }
     }
 
+    private void updateRecents(String title){
+        SharedPreferences sharedPref = getSharedPreferences("tostre.wwiki.wikilist", Context.MODE_PRIVATE);
+    }
+
     private void createDefaultWikis(){
         SharedPreferences sharedPref = getSharedPreferences("tostre.wwiki.wikilist", Context.MODE_PRIVATE);
 
@@ -117,6 +127,18 @@ public class MainActivity extends AppCompatActivity{
         editor.putString("Wikipedia (EN)", "https://en.wikipedia.org/w/api.php");
         editor.putString("Wikipedia (DE)", "https://de.wikipedia.org/w/api.php");
         editor.apply();
+
+        Map<String, ?> wikis = sharedPref.getAll();
+        ArrayList<String> wikiNames = new ArrayList<>();
+        ArrayList<String> wikiEndpoints = new ArrayList<>();
+
+        for(Map.Entry<String,?> entry : wikis.entrySet()){
+            Log.d("DBG", "____________________________________________");
+            Log.d("DBG",entry.getKey() + ": " +
+                    entry.getValue().toString());
+            wikiNames.add(entry.getKey());
+            wikiEndpoints.add((String) entry.getValue());
+        }
     }
 
 
@@ -170,7 +192,8 @@ public class MainActivity extends AppCompatActivity{
                 return true;
             case R.id.overflow_save:
                 // Debug method
-                updateArticleText("titke", getResources().getString(R.string.large_text));
+                //updateArticleText("titke", getResources().getString(R.string.large_text));
+                saveArticle();
                 return true;
             case R.id.overflow_delete:
                 return true;
@@ -226,6 +249,9 @@ public class MainActivity extends AppCompatActivity{
 
         // Receives the url from the searchActivity and loads the article
         if(requestCode == 1 && resultCode == RESULT_OK && networkInfo != null){
+            articleUrl = data.getStringExtra("articleJsonUrl");
+            imgUrl = data.getStringExtra("imageJsonUrl");
+
             // One instance of an AsyncTask can only be executed once, therefore
             // for every exectuion there must be created a new instance
             ArticleFetcher articleFetcher = new ArticleFetcher(this);
@@ -242,9 +268,33 @@ public class MainActivity extends AppCompatActivity{
      * with them
      */
 
+    // Adds the article title and its html to a shared preference
+    private void saveArticle(){
+        SharedPreferences sharedPref = getSharedPreferences("tostre.wwiki.saved", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString(title, text);
+        editor.apply();
+
+        Log.d("DBG", "saveArticle()");
+
+
+        Map<String, ?> values = sharedPref.getAll();
+        for(Map.Entry<String,?> entry : values.entrySet()){
+            Log.d("DBG","Gespeichert!!!!!: " + entry.getKey() + ": " +
+                    entry.getValue().toString());
+        }
+
+        //Log.d("")
+    }
+
     // Updates the text-related values in the article, updates view; called from articleFetcher
     public void updateArticleText(String title, String text){
         ((CollapsingToolbarLayout) findViewById(R.id.collapsingToolbar)).setTitle(title);
+
+        this.title = title;
+        this.text = text;
+
+        //updateRecents(title);
         /*
         text = "<HTML>\n" +
                 "<HEAD>\n" +
@@ -278,6 +328,8 @@ public class MainActivity extends AppCompatActivity{
                 "</table>";*/
 
         ((WebView) findViewById(R.id.content_text)).loadData(text, "text/html; charset=utf-8", "utf-8");
+
+
 
         loadingStatus++;
         if(loadingStatus == 2){
@@ -341,6 +393,8 @@ public class MainActivity extends AppCompatActivity{
                     savedFragment = SavedFragment.newInstance();
                 }
 
+                // TODO create new instances of subfragmen_listentry. As many as there are saved articles
+
                 // Replaces children of content_container with new fragment
                 fragmentTransaction.replace(R.id.content_container, savedFragment);
                 // Disables collapsing toolbar
@@ -348,6 +402,9 @@ public class MainActivity extends AppCompatActivity{
                 content_container.setNestedScrollingEnabled(false);
                 params.setScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL | AppBarLayout.LayoutParams.SCROLL_FLAG_EXIT_UNTIL_COLLAPSED);
                 invalidateOptionsMenu();
+
+
+
                 break;
 
             case "recents":

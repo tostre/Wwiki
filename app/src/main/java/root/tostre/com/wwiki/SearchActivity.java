@@ -51,6 +51,8 @@ public class SearchActivity extends AppCompatActivity {
     private Runnable runnable;
     private Menu menu;
 
+    private SharedPreferences sharedPref;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,25 +60,20 @@ public class SearchActivity extends AppCompatActivity {
 
         // Creates and populates the WIki-Chooser
         Spinner wikiChooser = (Spinner) findViewById(R.id.wiki_chooser);
-        //ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.wikis, R.layout.subfragment_spinner);
-        //ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.subfragment_spinner);
 
-
-        SharedPreferences sharedPref = getSharedPreferences("tostre.wwiki.wikilist", Context.MODE_PRIVATE);
+        sharedPref = getSharedPreferences("tostre.wwiki.wikilist", Context.MODE_PRIVATE);
         Map<String, ?> wikis = sharedPref.getAll();
-
         ArrayList<String> wikiNames = new ArrayList<>();
         ArrayList<String> wikiEndpoints = new ArrayList<>();
 
         for(Map.Entry<String,?> entry : wikis.entrySet()){
-            Log.d("DBG",entry.getKey() + ": " +
-                    entry.getValue().toString());
+            /*Log.d("DBG",entry.getKey() + ": " +
+                    entry.getValue().toString());*/
             wikiNames.add(entry.getKey());
             wikiEndpoints.add((String) entry.getValue());
         }
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.subfragment_spinner, wikiNames);
-
 
         // Apply the adapter to the spinner
         wikiChooser.setAdapter(adapter);
@@ -87,6 +84,44 @@ public class SearchActivity extends AppCompatActivity {
 
         ProgressBar progressBar = (ProgressBar) findViewById(R.id.search_results_progressBar);
         progressBar.setVisibility(View.GONE);
+    }
+
+    public void saveWiki(View view){
+        AlertDialog.Builder builder = new AlertDialog.Builder(SearchActivity.this);
+        builder.setTitle("Add new Wiki");
+
+        // Set up the input
+        final EditText input = new EditText(SearchActivity.this);
+        // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        //builder.setView(input);
+
+
+        final LayoutInflater inflater = getLayoutInflater();
+        builder.setView(inflater.inflate(R.layout.dialog_newwiki, null));
+
+
+        // Set up the buttons
+        builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //String m_Text = input.getText().toString();
+                //String wikiname = findViewById(R.id.newwiki_name).toString();
+                //String wikiendpoint = findViewById(R.id.newwiki_endpoint).toString();
+
+                //View view = ;
+                EditText editTextName = (EditText) inflater.inflate(R.layout.dialog_newwiki, null).findViewById(R.id.newwiki_name);
+            }
+        });
+
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
     }
 
     private void setSpinnerListener(Spinner wikiChooser){
@@ -114,39 +149,7 @@ public class SearchActivity extends AppCompatActivity {
                         //AlertDialog.Builder mBuilder = new AlertDialog.Builder(SearchActivity.this);
                         //View mView = getLayoutInflater().inflate()
 
-                        AlertDialog.Builder builder = new AlertDialog.Builder(SearchActivity.this);
-                        builder.setTitle("Add new Wiki");
 
-                        // Set up the input
-                        final EditText input = new EditText(SearchActivity.this);
-                        // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
-                        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-                        //builder.setView(input);
-
-
-                        LayoutInflater inflater = getLayoutInflater();
-                        builder.setView(inflater.inflate(R.layout.dialog_newwiki, null));
-
-
-                        // Set up the buttons
-                        builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                //String m_Text = input.getText().toString();
-                                //String wikiname = findViewById(R.id.newwiki_name).toString();
-                                //String wikiendpoint = findViewById(R.id.newwiki_endpoint).toString();
-                                saveWiki("Wikipedia (NL)", "https://nl.wikipedia.com");
-                            }
-                        });
-
-                        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.cancel();
-                            }
-                        });
-
-                        builder.show();
                         break;
                 }
             }
@@ -176,6 +179,7 @@ public class SearchActivity extends AppCompatActivity {
 
         Map<String, ?> values = sharedPref.getAll();
 
+        /*
         for(Map.Entry<String,?> entry : values.entrySet()){
             Log.d("DBG",entry.getKey() + ": " +
                     entry.getValue().toString());
@@ -184,7 +188,7 @@ public class SearchActivity extends AppCompatActivity {
 
         // SHow saved data
         String name = sharedPref.getString("Wikipedia (NL)", "");
-        Log.d("DBG", "sharedPRef: " + name);
+        Log.d("DBG", "sharedPRef: " + name);*/
 
 
 
@@ -218,9 +222,10 @@ public class SearchActivity extends AppCompatActivity {
                         SearchFetcher searchFetcher = new SearchFetcher(SearchActivity.this);
                         searchFetcher.execute(searchView.getQuery().toString(), apiEndpointSearch);
                         loadSearchResults();
+                        /*
                         Log.d("DBG", "runnable");
                         Log.d("DBG", "getQuery" + searchView.getQuery().toString());
-                        Log.d("DBG", "searchEP" + apiEndpointSearch);
+                        Log.d("DBG", "searchEP" + apiEndpointSearch);*/
                     }
                 };
 
