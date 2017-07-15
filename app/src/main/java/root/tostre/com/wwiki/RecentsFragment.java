@@ -1,5 +1,6 @@
 package root.tostre.com.wwiki;
 
+import android.app.FragmentManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -7,6 +8,8 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 
 /**
@@ -60,7 +63,6 @@ public class RecentsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         setHasOptionsMenu(true);
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_recents, container, false);
     }
 /**
@@ -83,8 +85,6 @@ public class RecentsFragment extends Fragment {
         }
     }
 
-
-
     @Override
     public void onDetach() {
         super.onDetach();
@@ -104,5 +104,20 @@ public class RecentsFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+    }
+
+    public void populateRecentsList(){
+        /*android.support.v4.app.FragmentManager fragmentManager = getFragmentManager();
+        RecentsFragment fragment = (RecentsFragment) fragmentManager.findFragmentById(R.id.recents_list);
+
+        LinearLayout recentsList = (LinearLayout) fragmentManager.find
+
+
+        if (fragment != null) {
+            LinearLayout diaryLayout = (LinearLayout) fragment.findViewById(R.id.diary_layout);
+            TextView newTextView = new TextView(this);
+            newTextView.setText("Testing");
+            diaryLayout.addView(newTextView);
+        }*/
     }
 }

@@ -3,23 +3,22 @@ package root.tostre.com.wwiki;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteBindOrColumnIndexOutOfRangeException;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Layout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -32,12 +31,9 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
-
-import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity{
@@ -100,29 +96,31 @@ public class MainActivity extends AppCompatActivity{
         content_container = (NestedScrollView) findViewById(R.id.content_container);
 
         // Sets reader fragment as the initial view
-        changeContentView("reader");
+        changeFragment("reader");
 
 
         createDefaultWikis();
     }
 
-    private void test(){
-        SharedPreferences sharedPref = getSharedPreferences("tostre.wwiki.wikilist", Context.MODE_PRIVATE);
-        Map<String, ?> values = sharedPref.getAll();
+    // Saves all loaded articles into a shared preference
+    private void updateRecents(String title, String text){
+        this.title = title;
+        this.text = text;
 
-        for(Map.Entry<String,?> entry : values.entrySet()){
-            Log.d("DBG",entry.getKey() + ": " +
-                    entry.getValue().toString());
-        }
+        Calendar calendar = Calendar.getInstance();
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MMM.yyyy");
+        String date = dateFormat.format(calendar.getTime());
+
+        SharedPreferences sharedPref = getSharedPreferences("tostre.wwiki.recentslist", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString(title, date);
+        editor.apply();
     }
 
-    private void updateRecents(String title){
-        SharedPreferences sharedPref = getSharedPreferences("tostre.wwiki.wikilist", Context.MODE_PRIVATE);
-    }
-
+    // Filles the wikis-sharedPref with the default-wikis (DE & EN)
     private void createDefaultWikis(){
         SharedPreferences sharedPref = getSharedPreferences("tostre.wwiki.wikilist", Context.MODE_PRIVATE);
-
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString("Wikipedia (EN)", "https://en.wikipedia.org/w/api.php");
         editor.putString("Wikipedia (DE)", "https://de.wikipedia.org/w/api.php");
@@ -133,14 +131,12 @@ public class MainActivity extends AppCompatActivity{
         ArrayList<String> wikiEndpoints = new ArrayList<>();
 
         for(Map.Entry<String,?> entry : wikis.entrySet()){
-            Log.d("DBG", "____________________________________________");
-            Log.d("DBG",entry.getKey() + ": " +
-                    entry.getValue().toString());
+            /*Log.d("DBG", "____________________________________________");
+            Log.d("DBG",entry.getKey() + ": " + entry.getValue().toString());*/
             wikiNames.add(entry.getKey());
             wikiEndpoints.add((String) entry.getValue());
         }
     }
-
 
     /**
      * Additional view initialization: Sets up the toolbar (and
@@ -208,13 +204,13 @@ public class MainActivity extends AppCompatActivity{
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.navigation_reader:
-                        changeContentView("reader");
+                        changeFragment("reader");
                         return true;
                     case R.id.navigation_saved:
-                        changeContentView("saved");
+                        changeFragment("saved");
                         return true;
                     case R.id.navigation_recents:
-                        changeContentView("recents");
+                        changeFragment("recents");
                         return true;
                 }
                 return false;
@@ -275,61 +271,23 @@ public class MainActivity extends AppCompatActivity{
         editor.putString(title, text);
         editor.apply();
 
-        Log.d("DBG", "saveArticle()");
+
 
 
         Map<String, ?> values = sharedPref.getAll();
         for(Map.Entry<String,?> entry : values.entrySet()){
-            Log.d("DBG","Gespeichert!!!!!: " + entry.getKey() + ": " +
-                    entry.getValue().toString());
+            //Log.d("DBG","Gespeichert!!!!!: " + entry.getKey() + ": " + entry.getValue().toString());
         }
 
-        //Log.d("")
+
     }
 
     // Updates the text-related values in the article, updates view; called from articleFetcher
     public void updateArticleText(String title, String text){
         ((CollapsingToolbarLayout) findViewById(R.id.collapsingToolbar)).setTitle(title);
 
-        this.title = title;
-        this.text = text;
-
-        //updateRecents(title);
-        /*
-        text = "<HTML>\n" +
-                "<HEAD>\n" +
-                "<TITLE>Your Title Here</TITLE>\n" +
-                "</HEAD>\n" +
-                "<BODY BGCOLOR=\"FFFFFF\">\n" +
-                "<CENTER><IMG SRC=\"clouds.jpg\" ALIGN=\"BOTTOM\"> </CENTER>\n" +
-                "<HR>\n" +
-                "<a href=\"http://somegreatsite.com\">Link Name</a>\n" +
-                "is a link to another nifty site\n" +
-                "<H1>This is a Header</H1>\n" +
-                "<H2>This is a Medium Header</H2>\n" +
-                "Send me mail at <a href=\"mailto:support@yourcompany.com\">\n" +
-                "support@yourcompany.com</a>.\n" +
-                "<P> This is a new paragraph!\n" +
-                "<P> <B>This is a new paragraph!</B>\n" +
-                "<BR> <B><I>This is a new sentence without a paragraph break, in bold italics.</I></B>\n" +
-                "<HR>\n" +
-                "</BODY>\n" +
-                "</HTML>";
-
-        text = "<table border=1>" +
-                "<tr>" +
-                "<td>row 1, cell 1</td>" +
-                "<td>row 1, cell 2</td>" +
-                "</tr>" +
-                "<tr>" +
-                "<td>row 2, cell 1</td>" +
-                "<td>row 2, cell 2</td>" +
-                "</tr>" +
-                "</table>";*/
-
+        updateRecents(title, text);
         ((WebView) findViewById(R.id.content_text)).loadData(text, "text/html; charset=utf-8", "utf-8");
-
-
 
         loadingStatus++;
         if(loadingStatus == 2){
@@ -337,7 +295,7 @@ public class MainActivity extends AppCompatActivity{
             loadingStatus = 0;
         }
 
-        readerFragment = (ReaderFragment) getSupportFragmentManager().findFragmentByTag("reader");
+        //readerFragment = (ReaderFragment) getSupportFragmentManager().findFragmentByTag("reader");
         //readerFragment.updateView(title, text);
     }
 
@@ -364,7 +322,7 @@ public class MainActivity extends AppCompatActivity{
      */
 
     // Changes the fragment depending on the bottom menu_navigation item pressed
-    private void changeContentView(String newFragment) {
+    private void changeFragment(String newFragment) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         AppBarLayout appBarLayout = (AppBarLayout) findViewById(R.id.appBarLayout);
@@ -402,9 +360,6 @@ public class MainActivity extends AppCompatActivity{
                 content_container.setNestedScrollingEnabled(false);
                 params.setScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL | AppBarLayout.LayoutParams.SCROLL_FLAG_EXIT_UNTIL_COLLAPSED);
                 invalidateOptionsMenu();
-
-
-
                 break;
 
             case "recents":
@@ -412,6 +367,7 @@ public class MainActivity extends AppCompatActivity{
                 if (recentsFragment == null){
                     recentsFragment = RecentsFragment.newInstance();
                 }
+
                 // Replaces children of content_container with new fragment
                 fragmentTransaction.replace(R.id.content_container, recentsFragment);
                 // Disables collapsing toolbar

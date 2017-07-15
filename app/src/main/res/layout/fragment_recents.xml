@@ -6,29 +6,7 @@
     android:orientation="vertical">
 
 
-    <include layout="@layout/subfragment_listentry"/>
 
-    <include layout="@layout/subfragment_listentry"/>
-
-    <include layout="@layout/subfragment_listentry"/>
-
-    <include layout="@layout/subfragment_listentry"/>
-
-    <include layout="@layout/subfragment_listentry"/>
-
-    <include layout="@layout/subfragment_listentry"/>
-
-    <include layout="@layout/subfragment_listentry"/>
-
-    <include layout="@layout/subfragment_listentry"/>
-
-    <include layout="@layout/subfragment_listentry"/>
-
-    <include layout="@layout/subfragment_listentry"/>
-
-    <include layout="@layout/subfragment_listentry"/>
-
-    <include layout="@layout/subfragment_listentry"/>
 
 
 </LinearLayout>
