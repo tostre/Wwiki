@@ -98,7 +98,6 @@ public class MainActivity extends AppCompatActivity{
         // Sets reader fragment as the initial view
         changeFragment("reader");
 
-
         createDefaultWikis();
     }
 

@@ -3,6 +3,10 @@ package root.tostre.com.wwiki;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Picture;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.PictureDrawable;
 import android.os.AsyncTask;
 import android.util.DisplayMetrics;
 import android.util.JsonReader;
@@ -11,6 +15,8 @@ import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ProgressBar;
+
+import com.caverock.androidsvg.SVG;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -96,10 +102,27 @@ public class ImageFetcher extends AsyncTask<String, Void, Bitmap> {
             tagNode = tagList.item(0);
             tagElement = (Element) tagNode;
             imgUrl = tagElement.getAttribute("source");
-            Log.d("DBG", "imgUrl: " + imgUrl);
 
-            inputStream = new java.net.URL(imgUrl).openStream();
-            image = BitmapFactory.decodeStream(inputStream);
+
+
+            if(imgUrl.indexOf(".svg") != -1){
+                Log.d("DBG", "SVG");
+                inputStream = new java.net.URL(imgUrl).openStream();
+
+                SVG svg = SVG.getFromInputStream(inputStream);
+                Picture picture = svg.renderToPicture();
+                Bitmap bitmap = Bitmap.createBitmap(picture.getWidth(), picture.getHeight(), Bitmap.Config.ARGB_8888);
+                Canvas canvas = new Canvas(bitmap);
+                canvas.drawPicture(picture);
+                image = bitmap;
+
+            } else {
+                Log.d("DBG", "kein SVG");
+                inputStream = new java.net.URL(imgUrl).openStream();
+                image = BitmapFactory.decodeStream(inputStream);
+            }
+
+
 
 
             //Bitmap b = BitmapFactory.decode

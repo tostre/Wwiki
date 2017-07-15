@@ -31,4 +31,5 @@ dependencies {
     compile 'com.android.support:palette-v7:25.3.1'
     testCompile 'junit:junit:4.12'
     compile files('libs/jsoup-1.10.2.jar')
+    compile files('libs/androidsvg-1.2.1.jar')
 }
