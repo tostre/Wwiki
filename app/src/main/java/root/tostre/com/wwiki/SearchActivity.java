@@ -11,6 +11,7 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -35,7 +36,7 @@ public class SearchActivity extends AppCompatActivity {
     private String apiEndpointImg ="https://en.wikipedia.org/w/api.php?action=query&prop=pageimages&piprop=original&format=json&titles=";
     private String apiEndpointSearch = "https://en.wikipedia.org/w/api.php?action=query&list=search&srlimit=20&format=json&srsearch=";
     private String apiParamsArticle = "?format=json&redirects=yes&action=parse&disableeditsection=true&page=";
-    private String apiParamsImg = "?action=query&prop=pageimages&piprop=original&format=json&titles=";
+    private String apiParamsImg = "?action=query&prop=pageimages&piprop=original&format=xml&titles=";
     private String apiParamsSearch = "?action=query&list=search&srlimit=20&format=json&srsearch=";
     private Menu menu;
     private Spinner wikiChooser;
@@ -240,6 +241,7 @@ public class SearchActivity extends AppCompatActivity {
                 // Creates a searchable URL from the item clicked in the list
                 String url = extractUrl(position);
                 String imgUrl = extractImageUrl(position);
+
                 // Ends the activity and sends the url back to the main activity
                 Intent intent = new Intent();
                 intent.putExtra("articleJsonUrl", url);
@@ -264,7 +266,6 @@ public class SearchActivity extends AppCompatActivity {
         String title = searchResults.get(position);
         title = title.replaceAll("\\s+", "%20");
         String url = apiEndpointImg + title;
-
         return url;
     }
 

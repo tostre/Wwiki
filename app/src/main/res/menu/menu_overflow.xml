@@ -12,7 +12,8 @@
         android:id="@+id/overflow_search"
         android:title="@string/overflow_search"
         android:icon="@drawable/icon_search"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="ifRoom"
+        android:orderInCategory="100"/>
     <item
         android:id="@+id/overflow_delete"
         android:title="@string/overflow_delete"

@@ -41,7 +41,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:background="?android:attr/windowBackground"
+        app:itemBackground="@color/colorPrimary"
+        app:itemIconTint="#FFFFFF"
+        app:itemTextColor="#FFFFFF"
         app:menu="@menu/menu_navigation"
         android:elevation="2dp"
         />
@@ -49,6 +51,6 @@
 </RelativeLayout>
 
 
-
+<!--android:background="?android:attr/windowBackground"-->
 
 

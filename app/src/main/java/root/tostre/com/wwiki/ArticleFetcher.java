@@ -80,7 +80,7 @@ public class ArticleFetcher extends AsyncTask<String, Void , ArrayList<String>>{
             }
 
             JSONObject json = new JSONObject(sb.toString());
-            Log.d("DBG", "Json Object * " + json.getJSONObject("parse").getJSONObject("text").getString("*"));
+
             document = documentBuilder.parse(new InputSource(new StringReader(json.getJSONObject("parse").getJSONObject("text").getString("*"))));
             document.getDocumentElement().normalize();
 

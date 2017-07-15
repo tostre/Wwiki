@@ -241,13 +241,12 @@ public class MainActivity extends AppCompatActivity{
         super.onActivityResult(requestCode, resultCode, data);
 
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        networkInfo = connectivityManager.getActiveNetworkInfo();
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
 
         // Receives the url from the searchActivity and loads the article
         if(requestCode == 1 && resultCode == RESULT_OK && networkInfo != null){
             articleUrl = data.getStringExtra("articleJsonUrl");
             imgUrl = data.getStringExtra("imageJsonUrl");
-
             // One instance of an AsyncTask can only be executed once, therefore
             // for every exectuion there must be created a new instance
             ArticleFetcher articleFetcher = new ArticleFetcher(this);
@@ -271,12 +270,9 @@ public class MainActivity extends AppCompatActivity{
         editor.putString(title, text);
         editor.apply();
 
-
-
-
         Map<String, ?> values = sharedPref.getAll();
         for(Map.Entry<String,?> entry : values.entrySet()){
-            Log.d("DBG","Gespeichert!!!!!: " + entry.getKey() + ": " + entry.getValue().toString());
+            //Log.d("DBG","Gespeichert!!!!!: " + entry.getKey() + ": " + entry.getValue().toString());
         }
 
 
@@ -300,7 +296,7 @@ public class MainActivity extends AppCompatActivity{
     }
 
     // Updates the img-related values in the article, updates view; called from imageFetcher
-    public void updateArticleImage(Bitmap image, String imgUrl){
+    public void updateArticleImage(Bitmap image){
 
         // Check if there's an image article
         if(image != null){
@@ -337,6 +333,9 @@ public class MainActivity extends AppCompatActivity{
                 if (readerFragment == null){
                     readerFragment = ReaderFragment.newInstance("", "");
                 }
+
+
+                //((WebView) findViewById(R.id.content_text)).loadData(text, "text/html; charset=utf-8", "utf-8");
 
                 fragmentTransaction.replace(R.id.content_container, ReaderFragment.newInstance("", ""), "reader");
                 // Enables collapsing toolbar

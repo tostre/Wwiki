@@ -18,13 +18,18 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -67,68 +72,51 @@ public class ImageFetcher extends AsyncTask<String, Void, Bitmap> {
     protected Bitmap doInBackground(String... urls) {
         imgXmlUrl = urls[0];
 
-        /*
         try {
             inputStream = new URL(imgXmlUrl).openStream();
-            document = documentBuilder.parse(inputStream);
+
+
+
+            StringBuilder stringBuilder = new StringBuilder();
+
+            try(Reader reader = new BufferedReader(new InputStreamReader(
+                    inputStream, Charset.forName(StandardCharsets.UTF_8.name())))){
+                        int c = 0;
+                        while ((c = reader.read()) != -1){
+                            stringBuilder.append((char) c);
+                }
+            }
+
+            String imgXml = stringBuilder.toString();
+            StringReader stringReader = new StringReader(imgXml);
+            InputSource inputSource = new InputSource(stringReader);
+            document = documentBuilder.parse(inputSource);
             document.getDocumentElement().normalize();
             tagList = document.getElementsByTagName("original");
             tagNode = tagList.item(0);
             tagElement = (Element) tagNode;
             imgUrl = tagElement.getAttribute("source");
+            Log.d("DBG", "imgUrl: " + imgUrl);
+
             inputStream = new java.net.URL(imgUrl).openStream();
             image = BitmapFactory.decodeStream(inputStream);
+
+
             //Bitmap b = BitmapFactory.decode
             image = scaleDownBitmap(image);
+
             inputStream.close();
+
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return image;*/
-
-        String result = null;
-
-        try{
-            inputStream = new URL(imgXmlUrl).openStream();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"), 8);
-            StringBuilder sb = new StringBuilder();
-
-            String line = null;
-            while ((line = reader.readLine()) != null)
-            {
-                sb.append(line + "\n");
-            }
-            result = sb.toString();
-
-            JSONObject jobject = new JSONObject(result);
-            JSONObject jImage = jobject.getJSONObject("original");
-
-            String imgUrl = jImage.getString("source");
-
-            inputStream = new java.net.URL(imgUrl).openStream();
-            image = BitmapFactory.decodeStream(inputStream);
-            //Bitmap b = BitmapFactory.decode
-            image = scaleDownBitmap(image);
-            inputStream.close();
-
-
-
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
         return image;
 
     }
 
     protected void onPostExecute(Bitmap image) {
         // Set image in mainactivity
-        //((ImageView) mainActivity.findViewById(R.id.article_image)).setImageBitmap(image);
-        mainActivity.updateArticleImage(image, imgUrl);
+        mainActivity.updateArticleImage(image);
         progressBar.setVisibility(View.GONE);
     }
 
@@ -141,15 +129,12 @@ public class ImageFetcher extends AsyncTask<String, Void, Bitmap> {
         int screenWidth = displayMetrics.widthPixels;
         int imageHeight = image.getHeight();
         int imageWidth = image.getWidth();
-        int scaleFactor = imageWidth/screenWidth;
+        double scaleFactor = ((double)imageWidth)/screenWidth;
 
-        imageHeight = imageHeight/scaleFactor;
+        imageHeight = (int) (imageHeight/scaleFactor);
         imageWidth = screenWidth;
 
         image = Bitmap.createScaledBitmap(image, imageWidth, imageHeight, true);
-
-        //Log.d("DBG", "imgHeight: " + Integer.toString(imageHeight) + "\n");
-        //Log.d("DBG", "imgWidth: " + Integer.toString(imageWidth) + "\n");
 
         return image;
     }

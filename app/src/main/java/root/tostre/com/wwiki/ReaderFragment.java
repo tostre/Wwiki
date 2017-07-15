@@ -51,14 +51,14 @@ public class ReaderFragment extends Fragment {
         collapsingToolbar = (CollapsingToolbarLayout) getActivity().findViewById(R.id.collapsingToolbar);
         contentTextView = (WebView) view.findViewById(R.id.content_text);
         // Initiate first displayed article
-        updateView(getArguments().getString("article"), getArguments().getString("extract"));
+        setTitle(getArguments().getString("article"), getArguments().getString("extract"));
+
         return view;
     }
 
     // Updates the view with the values in the current article-arraylist
-    public void updateView(String title, String extract) {
+    public void setTitle(String title, String extract) {
         collapsingToolbar.setTitle(title);
-        //contentTextView.setText(extract);
     }
 
 
@@ -66,14 +66,7 @@ public class ReaderFragment extends Fragment {
 
 
 
-    public int[] getScrollState(){
-        NestedScrollView content_container = (NestedScrollView) getActivity().findViewById(R.id.content_container);
-        int[] scrollState = {content_container.getScrollX(), content_container.getScrollY()};
 
-        Log.d("DBG", Integer.toString(content_container.getScrollX()) + "//" + Integer.toString(content_container.getScrollY())+ "\n");
-
-        return scrollState;
-    }
 /**
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
