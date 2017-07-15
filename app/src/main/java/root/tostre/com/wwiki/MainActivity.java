@@ -276,7 +276,7 @@ public class MainActivity extends AppCompatActivity{
 
         Map<String, ?> values = sharedPref.getAll();
         for(Map.Entry<String,?> entry : values.entrySet()){
-            //Log.d("DBG","Gespeichert!!!!!: " + entry.getKey() + ": " + entry.getValue().toString());
+            Log.d("DBG","Gespeichert!!!!!: " + entry.getKey() + ": " + entry.getValue().toString());
         }
 
 
