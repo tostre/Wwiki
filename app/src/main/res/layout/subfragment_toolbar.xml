@@ -17,11 +17,12 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fitsSystemWindows="true"
+
             app:expandedTitleMarginEnd="48dp"
             app:expandedTitleMarginStart="16dp"
+
             app:contentScrim="?attr/colorPrimary"
             app:layout_scrollFlags="scroll|enterAlways|enterAlwaysCollapsed"
-            app:title="@string/debug_articleTitle"
             app:scrimAnimationDuration="150"
             app:scrimVisibleHeightTrigger="200dp"
             app:statusBarScrim="@color/colorPrimary">

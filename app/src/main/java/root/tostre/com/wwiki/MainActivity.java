@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity{
             "</tr>" +
             "</table>";
     //
-    private TouchyWebView wv;
+    private WebView wv;
 
 
     /**
@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity{
         progressBar.setVisibility(View.GONE);
 
         // Initialize WebView
-        wv = (TouchyWebView) findViewById(R.id.content_text);
+        wv = (WebView) findViewById(R.id.content_text);
         //wv = (WebView) findViewById(R.id.content_text);
         //wv.getSettings().setJavaScriptEnabled(true);
 
