@@ -36,6 +36,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Map;
 
+import static android.R.attr.windowBackground;
+
 public class MainActivity extends AppCompatActivity{
 
     private Article article;
@@ -82,6 +84,12 @@ public class MainActivity extends AppCompatActivity{
         setBottomBar();
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        // Style the collapsing toolbar
+        CollapsingToolbarLayout ct = (CollapsingToolbarLayout) findViewById(R.id.collapsingToolbar);
+        ct.setCollapsedTitleTextColor(getResources().getColor(R.color.colorPrimary));
+        ct.setExpandedTitleColor(getResources().getColor(R.color.white));
+        ct.setContentScrimColor(getResources().getColor(R.color.colorToolbar));
+        ct.setStatusBarScrimColor(getResources().getColor(R.color.colorStatusBar));
 
         // Hide the loading spinner on start
         ProgressBar progressBar = (ProgressBar) findViewById(R.id.image_progressBar);
@@ -341,6 +349,7 @@ public class MainActivity extends AppCompatActivity{
                 content_container.setNestedScrollingEnabled(true);
                 params.setScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL | AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS | AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS_COLLAPSED);
                 invalidateOptionsMenu();
+                ((CollapsingToolbarLayout) findViewById(R.id.collapsingToolbar)).setTitle(title);
                 break;
 
             case "saved":
@@ -358,6 +367,7 @@ public class MainActivity extends AppCompatActivity{
                 content_container.setNestedScrollingEnabled(false);
                 params.setScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL | AppBarLayout.LayoutParams.SCROLL_FLAG_EXIT_UNTIL_COLLAPSED);
                 invalidateOptionsMenu();
+                ((CollapsingToolbarLayout) findViewById(R.id.collapsingToolbar)).setTitle("Saved");
                 break;
 
             case "recents":
@@ -373,6 +383,7 @@ public class MainActivity extends AppCompatActivity{
                 content_container.setNestedScrollingEnabled(false);
                 params.setScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL | AppBarLayout.LayoutParams.SCROLL_FLAG_EXIT_UNTIL_COLLAPSED);
                 invalidateOptionsMenu();
+                ((CollapsingToolbarLayout) findViewById(R.id.collapsingToolbar)).setTitle("Recents");
                 break;
 
             default:
