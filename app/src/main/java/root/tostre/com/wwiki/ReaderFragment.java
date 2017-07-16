@@ -3,18 +3,16 @@ package root.tostre.com.wwiki;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
-import android.support.v4.widget.NestedScrollView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
-import android.widget.TextView;
 
 public class ReaderFragment extends Fragment {
 
     private CollapsingToolbarLayout collapsingToolbar;
-    private WebView contentTextView;
+    private WebView webView;
 
 
 
@@ -49,16 +47,16 @@ public class ReaderFragment extends Fragment {
 
         // Get required view variables
         collapsingToolbar = (CollapsingToolbarLayout) getActivity().findViewById(R.id.collapsingToolbar);
-        contentTextView = (WebView) view.findViewById(R.id.content_text);
-        // Initiate first displayed article
-        setTitle(getArguments().getString("article"), getArguments().getString("extract"));
+        webView = (WebView) view.findViewById(R.id.content_text);
+
 
         return view;
     }
 
     // Updates the view with the values in the current article-arraylist
-    public void setTitle(String title, String extract) {
-        collapsingToolbar.setTitle(title);
+    public void setText(String text) {
+
+        webView.loadData("HALLO", "text/html", "utf-8");
     }
 
 

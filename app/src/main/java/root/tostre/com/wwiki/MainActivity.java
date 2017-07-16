@@ -48,8 +48,8 @@ public class MainActivity extends AppCompatActivity{
     private int loadingStatus = 0;
     private NestedScrollView content_container;
 
-    private String text;
-    private String title;
+    private String text = "Try searching for an article in the upper right corner";
+    private String title = "Wwiki";
     private String articleUrl;
     private String imgUrl;
 
@@ -97,7 +97,6 @@ public class MainActivity extends AppCompatActivity{
 
         // Initialize WebView
         wv = (WebView) findViewById(R.id.content_text);
-        //wv = (WebView) findViewById(R.id.content_text);
         //wv.getSettings().setJavaScriptEnabled(true);
 
         // Save data that is frequently used
@@ -341,15 +340,18 @@ public class MainActivity extends AppCompatActivity{
                     readerFragment = ReaderFragment.newInstance("", "");
                 }
 
-
-                //((WebView) findViewById(R.id.content_text)).loadData(text, "text/html; charset=utf-8", "utf-8");
-
                 fragmentTransaction.replace(R.id.content_container, ReaderFragment.newInstance("", ""), "reader");
                 // Enables collapsing toolbar
                 content_container.setNestedScrollingEnabled(true);
                 params.setScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL | AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS | AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS_COLLAPSED);
                 invalidateOptionsMenu();
                 ((CollapsingToolbarLayout) findViewById(R.id.collapsingToolbar)).setTitle(title);
+                //(((WebView) findViewById(R.id.content_text)).loadData("hi", "text/html; charset=utf-8", "utf-8");
+                //WebView webView = (WebView) findViewById(R.id.content_text);
+                //webView.loadData("HALLO", "text/html", "utf-8");
+                //readerFragment.setText("DAS IST EIN TEXT");
+
+                Log.d("DBG", text);
                 break;
 
             case "saved":
@@ -376,6 +378,8 @@ public class MainActivity extends AppCompatActivity{
                     recentsFragment = RecentsFragment.newInstance();
                 }
 
+
+
                 // Replaces children of content_container with new fragment
                 fragmentTransaction.replace(R.id.content_container, recentsFragment);
                 // Disables collapsing toolbar
@@ -390,6 +394,10 @@ public class MainActivity extends AppCompatActivity{
                 break;
         }
         fragmentTransaction.commit();
+    }
+
+    public String getText(){
+        return text;
     }
 
 

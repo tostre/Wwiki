@@ -32,9 +32,9 @@ import java.util.TimerTask;
 public class SearchActivity extends AppCompatActivity {
 
     private ArrayList<String> searchResults;
-    private String apiEndpointArticle = "https://en.wikipedia.org/w/api.php?format=json&redirects=yes&action=parse&disableeditsection=true&page=";
-    private String apiEndpointImg ="https://en.wikipedia.org/w/api.php?action=query&prop=pageimages&piprop=original&format=json&titles=";
-    private String apiEndpointSearch = "https://en.wikipedia.org/w/api.php?action=query&list=search&srlimit=20&format=json&srsearch=";
+    private String apiEndpointArticle = "";
+    private String apiEndpointImg ="";
+    private String apiEndpointSearch = "";
     private String apiParamsArticle = "?format=json&redirects=yes&action=parse&disableeditsection=true&page=";
     private String apiParamsImg = "?action=query&prop=pageimages&piprop=original&format=xml&titles=";
     private String apiParamsSearch = "?action=query&list=search&srlimit=20&format=json&srsearch=";
