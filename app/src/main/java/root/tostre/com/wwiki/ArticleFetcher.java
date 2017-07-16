@@ -68,6 +68,7 @@ public class ArticleFetcher extends AsyncTask<String, Void , ArrayList<String>>{
         articleJsonUrl = urls[0];
         articleTextArray = new ArrayList<String>();
 
+
         try {
             documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilder = documentBuilderFactory.newDocumentBuilder();
@@ -81,16 +82,18 @@ public class ArticleFetcher extends AsyncTask<String, Void , ArrayList<String>>{
 
             JSONObject json = new JSONObject(sb.toString());
 
-            document = documentBuilder.parse(new InputSource(new StringReader(json.getJSONObject("parse").getJSONObject("text").getString("*"))));
-            document.getDocumentElement().normalize();
 
-            articleTextArray.add(json.getJSONObject("parse").getString("title"));
+            //document = documentBuilder.parse(new InputSource(new StringReader(json.getJSONObject("parse").getJSONObject("text").getString("*"))));
+            //document.getDocumentElement().normalize();
 
 
-            String textp = json.getJSONObject("parse").getJSONObject("text").getString("*");
-            textp = new HtmlCleaner().cleanHtmlString(textp);
-            articleTextArray.add(textp);
+            //String textp = json.getJSONObject("parse").getJSONObject("text").getString("*");
+            String textp = new HtmlCleaner().cleanHtmlString(json.getJSONObject("parse").getJSONObject("text").getString("*"));
+
             // Add the url to the articleArray
+            articleTextArray.add(json.getJSONObject("parse").getString("title"));
+            articleTextArray.add(textp);
+
             articleTextArray.add(articleJsonUrl);
             inputStream.close();
 
@@ -101,8 +104,6 @@ public class ArticleFetcher extends AsyncTask<String, Void , ArrayList<String>>{
         } /*catch (SAXException e) {
             e.printStackTrace();
         }*/ catch (ParserConfigurationException e) {
-            e.printStackTrace();
-        } catch (SAXException e) {
             e.printStackTrace();
         }
         return articleTextArray;

@@ -29,6 +29,8 @@ public class HtmlCleaner{
         elements.remove();
         elements = doc.getElementsByClass("thumb tleft");
         elements.remove();
+        elements = doc.getElementsByClass("thumbinner");
+        elements.remove();
         // Remove tables
         elements = doc.getElementsByClass("wikitable float-right");
         elements.remove();
