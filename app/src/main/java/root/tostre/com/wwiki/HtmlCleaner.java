@@ -56,9 +56,9 @@ public class HtmlCleaner{
          * Noch zu tun hier:
          * Table class="wikitable sortable" ausfiltern, in ein array packen und erst bei wunsch einblenden
          */
-
-        //String cleanHtml = Jsoup.clean(doc.toString(), new Whitelist().addTags("p", "span", "a", "b", "h1", "h2", "h3", "h4", "h5", "h6", "li", "ol", "ul", "href"));
         String cleanHtml = doc.toString();
+        //cleanHtml = Jsoup.clean(doc.toString(), new Whitelist().addTags("p", "span", "a", "b", "h1", "h2", "h3", "h4", "h5", "h6", "li", "ol", "ul", "href"));
+
 
         return cleanHtml;
     }

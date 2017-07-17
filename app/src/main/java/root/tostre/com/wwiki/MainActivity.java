@@ -18,6 +18,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Html;
 import android.text.Layout;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -30,6 +31,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import org.w3c.dom.Text;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -67,6 +70,7 @@ public class MainActivity extends AppCompatActivity{
             "</table>";
     //
     private WebView wv;
+    private TextView tv;
 
 
     /**
@@ -97,6 +101,7 @@ public class MainActivity extends AppCompatActivity{
 
         // Initialize WebView
         wv = (WebView) findViewById(R.id.content_text);
+        //tv = (TextView) findViewById(R.id.content_text);
         //wv.getSettings().setJavaScriptEnabled(true);
 
         // Save data that is frequently used
@@ -118,10 +123,19 @@ public class MainActivity extends AppCompatActivity{
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MMM.yyyy");
         String date = dateFormat.format(calendar.getTime());
 
+        // Saves all read past articles plus date
         SharedPreferences sharedPref = getSharedPreferences("tostre.wwiki.recentslist", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString(title, date);
         editor.apply();
+
+        // Saves the last Articles title
+        SharedPreferences sharedPref2 = getSharedPreferences("tostre.wwiki.lastArticle", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor2 = sharedPref2.edit();
+        sharedPref2.edit().clear().apply();
+        editor2.putString("lastTitle", title);
+        editor2.putString("lastText", text);
+        editor2.apply();
     }
 
     // Filles the wikis-sharedPref with the default-wikis (DE & EN)
@@ -284,12 +298,19 @@ public class MainActivity extends AppCompatActivity{
 
     }
 
+    public void loadSavedArticle(View view){
+        // Hier die Kinder der View finden (die TextViews)
+        // Den Text daraus ziehen und in den SharedPrefs die entsprechenden Artikel laden
+    }
+
     // Updates the text-related values in the article, updates view; called from articleFetcher
     public void updateArticleText(String title, String text){
         ((CollapsingToolbarLayout) findViewById(R.id.collapsingToolbar)).setTitle(title);
 
         updateRecents(title, text);
         ((WebView) findViewById(R.id.content_text)).loadData(text, "text/html; charset=utf-8", "utf-8");
+        //((TextView) findViewById(R.id.content_text)).setText(Html.fromHtml(text));
+
 
         loadingStatus++;
         if(loadingStatus == 2){
@@ -349,8 +370,7 @@ public class MainActivity extends AppCompatActivity{
                 //(((WebView) findViewById(R.id.content_text)).loadData("hi", "text/html; charset=utf-8", "utf-8");
                 //WebView webView = (WebView) findViewById(R.id.content_text);
                 //webView.loadData("HALLO", "text/html", "utf-8");
-                //readerFragment.setText("DAS IST EIN TEXT");
-
+                //readerFragment.displayLastArticle();
                 Log.d("DBG", text);
                 break;
 

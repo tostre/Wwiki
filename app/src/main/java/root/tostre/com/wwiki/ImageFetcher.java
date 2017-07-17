@@ -106,7 +106,6 @@ public class ImageFetcher extends AsyncTask<String, Void, Bitmap> {
 
 
             if(imgUrl.indexOf(".svg") != -1){
-                Log.d("DBG", "SVG");
                 inputStream = new java.net.URL(imgUrl).openStream();
 
                 SVG svg = SVG.getFromInputStream(inputStream);
@@ -115,9 +114,7 @@ public class ImageFetcher extends AsyncTask<String, Void, Bitmap> {
                 Canvas canvas = new Canvas(bitmap);
                 canvas.drawPicture(picture);
                 image = bitmap;
-
             } else {
-                Log.d("DBG", "kein SVG");
                 inputStream = new java.net.URL(imgUrl).openStream();
                 image = BitmapFactory.decodeStream(inputStream);
             }

@@ -16,19 +16,21 @@
         android:paddingTop="16dp"
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
-        android:textSize="16dp">
+        android:textSize="16dp"
+        android:textColor="@color/black">
     </TextView>
 
     <TextView
         android:id="@+id/savedRecentsListItem_info"
-        android:text="Offline verfügbar, aufgerufen am 23.06.2017"
+        android:text="abgerufen am 23.06.2017"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:textSize="12dp"
         android:paddingLeft="16dp"
         android:paddingBottom="16dp"
-        android:paddingRight="16dp">
+        android:paddingRight="16dp"
+        android:textColor="@color/black">
     </TextView>
 
 

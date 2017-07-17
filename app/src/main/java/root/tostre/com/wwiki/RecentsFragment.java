@@ -1,15 +1,25 @@
 package root.tostre.com.wwiki;
 
 import android.app.FragmentManager;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.Layout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.ListAdapter;
 import android.widget.TextView;
+
+import org.w3c.dom.Text;
+
+import java.util.ArrayList;
+import java.util.Map;
 
 
 /**
@@ -29,7 +39,7 @@ public class RecentsFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-
+    private View rootView;
     private OnFragmentInteractionListener mListener;
     private Menu menu;
 
@@ -58,12 +68,15 @@ public class RecentsFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         setHasOptionsMenu(true);
-        return inflater.inflate(R.layout.fragment_recents, container, false);
+        rootView = inflater.inflate(R.layout.fragment_recents, container, false);
+        populateRecentsList();
+        return rootView;
     }
 /**
     @Override
@@ -107,17 +120,23 @@ public class RecentsFragment extends Fragment {
     }
 
     public void populateRecentsList(){
-        /*android.support.v4.app.FragmentManager fragmentManager = getFragmentManager();
-        RecentsFragment fragment = (RecentsFragment) fragmentManager.findFragmentById(R.id.recents_list);
 
-        LinearLayout recentsList = (LinearLayout) fragmentManager.find
+        LinearLayout recentsList = (LinearLayout) rootView.findViewById(R.id.recents_list);
 
+        SharedPreferences sharedPref = getActivity().getSharedPreferences("tostre.wwiki.recentslist", Context.MODE_PRIVATE);
+        Map<String, ?> wikis = sharedPref.getAll();
+        ArrayList<String> articleTitles = new ArrayList<>();
+        ArrayList<String> articleDates= new ArrayList<>();
 
-        if (fragment != null) {
-            LinearLayout diaryLayout = (LinearLayout) fragment.findViewById(R.id.diary_layout);
-            TextView newTextView = new TextView(this);
-            newTextView.setText("Testing");
-            diaryLayout.addView(newTextView);
-        }*/
+        for(Map.Entry<String,?> entry : wikis.entrySet()){
+
+            LayoutInflater inflater = LayoutInflater.from(getActivity().getApplicationContext());
+            View listEntry = inflater.inflate(R.layout.subfragment_listentry, recentsList, false);
+
+            ((TextView) listEntry.findViewById(R.id.savedRecentsListItem_title)).setText(entry.getKey());
+            ((TextView) listEntry.findViewById(R.id.savedRecentsListItem_info)).setText("abgerufen am: " + (String) entry.getValue());
+
+            recentsList.addView(listEntry);
+        }
     }
 }

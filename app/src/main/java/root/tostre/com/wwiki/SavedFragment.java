@@ -1,5 +1,7 @@
 package root.tostre.com.wwiki;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -7,6 +9,11 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import java.util.ArrayList;
+import java.util.Map;
 
 
 /**
@@ -22,6 +29,7 @@ public class SavedFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+    private View rootView;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -61,8 +69,32 @@ public class SavedFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         setHasOptionsMenu(true);
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_saved, container, false);
+        rootView = inflater.inflate(R.layout.fragment_saved, container, false);
+        populateSavedList();
+        return rootView;
     }
+
+    public void populateSavedList(){
+
+        LinearLayout saved_list = (LinearLayout) rootView.findViewById(R.id.saved_list);
+
+        SharedPreferences sharedPref = getActivity().getSharedPreferences("tostre.wwiki.saved", Context.MODE_PRIVATE);
+        Map<String, ?> wikis = sharedPref.getAll();
+        ArrayList<String> articleTitles = new ArrayList<>();
+        ArrayList<String> articleDates= new ArrayList<>();
+
+        for(Map.Entry<String,?> entry : wikis.entrySet()){
+
+            LayoutInflater inflater = LayoutInflater.from(getActivity().getApplicationContext());
+            View listEntry = inflater.inflate(R.layout.subfragment_listentry, saved_list, false);
+
+            ((TextView) listEntry.findViewById(R.id.savedRecentsListItem_title)).setText(entry.getKey());
+            ((TextView) listEntry.findViewById(R.id.savedRecentsListItem_info)).setText("offline verfügbar");
+
+            saved_list.addView(listEntry);
+        }
+    }
+
 /**
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){

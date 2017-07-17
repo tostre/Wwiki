@@ -1,13 +1,21 @@
 package root.tostre.com.wwiki;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
+import android.widget.TextView;
+
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 public class ReaderFragment extends Fragment {
 
@@ -41,22 +49,42 @@ public class ReaderFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_reader, container, false);
+
         setHasOptionsMenu(true);
 
         // Get required view variables
-        collapsingToolbar = (CollapsingToolbarLayout) getActivity().findViewById(R.id.collapsingToolbar);
-        webView = (WebView) view.findViewById(R.id.content_text);
+        //collapsingToolbar = (CollapsingToolbarLayout) getActivity().findViewById(R.id.collapsingToolbar);
+        //webView = (WebView) view.findViewById(R.id.content_text);
+
+        //displayLastArticle();
 
 
+        // Inflate the layout for this fragment
+        View view = inflater.inflate(R.layout.fragment_reader, container, false);
         return view;
     }
 
     // Updates the view with the values in the current article-arraylist
-    public void setText(String text) {
+    public void displayLastArticle() {
 
-        webView.loadData("HALLO", "text/html", "utf-8");
+        //webView.loadData("HALLO", "text/html", "utf-8");
+
+
+        SharedPreferences sharedPref = this.getActivity().getSharedPreferences("tostre.wwiki.lastArticle", Context.MODE_PRIVATE);
+
+        Map<String, ?> values = sharedPref.getAll();
+        String lastTitle = sharedPref.getString("lastTitle", "No last title");
+
+
+
+        SharedPreferences sharedPref2 = this.getActivity().getSharedPreferences("tostre.wwiki.lastArticle", Context.MODE_PRIVATE);
+        String lastText = sharedPref2.getString("lastText", "No last text");
+
+        //((TextView) getView().findViewById(R.id.content_text)).setText(Html.fromHtml(lastText));
+        //((MainActivity) getActivity()).updateArticleText(lastTitle, lastText);
+
+        //Log.d("DBG", "LASTTITLE: " + lastTitle);
+        //Log.d("DBG", "LASTTEXT: " + lastText);
     }
 
 

@@ -1,34 +1,12 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/recents_list"
+    android:id="@+id/saved_list"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:onClick="loadSavedArticle">
 
 
-    <include layout="@layout/subfragment_listentry"/>
-
-    <include layout="@layout/subfragment_listentry"/>
-
-    <include layout="@layout/subfragment_listentry"/>
-
-    <include layout="@layout/subfragment_listentry"/>
-
-    <include layout="@layout/subfragment_listentry"/>
-
-    <include layout="@layout/subfragment_listentry"/>
-
-    <include layout="@layout/subfragment_listentry"/>
-
-    <include layout="@layout/subfragment_listentry"/>
-
-    <include layout="@layout/subfragment_listentry"/>
-
-    <include layout="@layout/subfragment_listentry"/>
-
-    <include layout="@layout/subfragment_listentry"/>
-
-    <include layout="@layout/subfragment_listentry"/>
 
 
 </LinearLayout>
