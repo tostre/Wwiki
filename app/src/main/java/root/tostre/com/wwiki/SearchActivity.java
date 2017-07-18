@@ -11,7 +11,6 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -23,11 +22,16 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
-
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+
+/**
+ * Controls the seach interface, the gathering of text from the searchView,
+ * the creation of openable URLs from the seach text, the adding of new wikis,
+ * etc.
+ */
 
 public class SearchActivity extends AppCompatActivity {
 
@@ -74,7 +78,7 @@ public class SearchActivity extends AppCompatActivity {
         // LIstens for a change in the search-text
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             private Timer timer=new Timer();
-            private final long DELAY = 500; // milliseconds
+            private final long DELAY = 500;
 
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -83,7 +87,6 @@ public class SearchActivity extends AppCompatActivity {
 
             @Override // Start search after user has stopped typing for 500ms
             public boolean onQueryTextChange(String newText) {
-
 
                 timer.cancel();
                 timer = new Timer();
@@ -150,6 +153,7 @@ public class SearchActivity extends AppCompatActivity {
         wikiChooser.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                // Creates URLs from the tapped search term
                 apiEndpointArticle = endpointList.get(position) + apiParamsArticle;
                 apiEndpointImg = endpointList.get(position) + apiParamsImg;
                 apiEndpointSearch = endpointList.get(position) + apiParamsSearch;
@@ -226,10 +230,6 @@ public class SearchActivity extends AppCompatActivity {
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.subfragment_listitems, searchResults);
         listView.setAdapter(adapter);
     }
-
-    /**
-     *
-     */
 
     // Creates listener for listView that load the article from the listitem
     private void startArticleLoaderFromList(){

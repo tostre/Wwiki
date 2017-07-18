@@ -1,33 +1,28 @@
 package root.tostre.com.wwiki;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
-import android.text.Html;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
-import android.widget.TextView;
 
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+/**
+ * Connected to fragmetn_reader
+ * Loads the articles, puts them on hold when
+ * the fragment is changed, etc.
+ */
 
 public class ReaderFragment extends Fragment {
 
-    private CollapsingToolbarLayout collapsingToolbar;
     private WebView webView;
     private Bundle webViewBundle;
     private CharSequence lastTitle;
 
-
-
-    // Constructor, never used
+    // Constructor
     public ReaderFragment() {
         // Required empty public constructor
     }
@@ -57,7 +52,7 @@ public class ReaderFragment extends Fragment {
         return view;
     }
 
-    @Override
+    @Override // When the fragment is replaced, the current article is saved...
     public void onPause(){
         super.onPause();
         webViewBundle = new Bundle();
@@ -73,7 +68,7 @@ public class ReaderFragment extends Fragment {
 
     }
 
-    @Override
+    @Override // ...and restored, when the fragment is loaded again
     public void onResume(){
         super.onResume();
         SharedPreferences sharedPref = getActivity().getApplicationContext().getSharedPreferences(getActivity().getPackageName(), Activity.MODE_PRIVATE);
@@ -91,35 +86,5 @@ public class ReaderFragment extends Fragment {
         }
 
     }
-
-
-
-
-
-
-
-
-
-
-
-/**
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
-        inflater.inflate(R.menu.menu_overflow, menu);
-        this.menu = menu;
-        // Updates which menu items are shown when fragment is displayed
-        MenuItem search = menu.findItem(R.id.overflow_search).setVisible(true);
-        MenuItem save = menu.findItem(R.id.overflow_save).setVisible(true);
-        MenuItem recents = menu.findItem(R.id.overflow_delete).setVisible(false);
-
-        search.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                loadArticle();
-                return true;
-            }
-        });
-        super.onCreateOptionsMenu(menu, inflater);
-    }*/
 
 }

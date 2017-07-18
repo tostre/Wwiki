@@ -3,16 +3,9 @@ package root.tostre.com.wwiki;
 import android.os.AsyncTask;
 import android.view.View;
 import android.widget.ProgressBar;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,12 +13,10 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
 /**
  * Created by Macel on 13.05.17.
+ * Handles the communications with the server when
+ * searching for an article
  */
 
 public class SearchFetcher extends AsyncTask<String, Void, String> {
@@ -34,7 +25,7 @@ public class SearchFetcher extends AsyncTask<String, Void, String> {
     private SearchActivity searchActivity;
     private ProgressBar progressBar;
 
-    // Called when an ArticleFetcher object is created
+    // Constructor
     public SearchFetcher(SearchActivity searchActivity){
         this.searchActivity = searchActivity;
         articleList = new ArrayList<String>();
@@ -47,7 +38,7 @@ public class SearchFetcher extends AsyncTask<String, Void, String> {
         progressBar.setVisibility(View.VISIBLE);
     }
 
-    @Override
+    @Override // Sends seach to server, receives answer, creates list from answers
     protected String doInBackground(String... params) {
         String searchUrl = createUrl(params[0],params[1]);
 
@@ -64,7 +55,6 @@ public class SearchFetcher extends AsyncTask<String, Void, String> {
             }
 
             JSONObject result = new JSONObject(sb.toString());
-
             JSONArray search = result.getJSONObject("query").getJSONArray("search");
 
             if(search.length() > 0){
@@ -89,14 +79,7 @@ public class SearchFetcher extends AsyncTask<String, Void, String> {
         return null;
     }
 
-    // Creates an url from the title of a page
-    public String createUrl(String searchTerm, String apiEndpointSearch){
-        searchTerm = searchTerm.replaceAll("\\s+", "%20");
-        String newSearchUrl = apiEndpointSearch + searchTerm;
-        return newSearchUrl;
-    }
-
-    @Override
+    @Override // Calls to update the search-result-list, hides loading spinner
     protected void onPostExecute(String s) {
         //super.onPostExecute(articleList);
         searchActivity.updateSearchResultsList(articleList);
@@ -104,4 +87,11 @@ public class SearchFetcher extends AsyncTask<String, Void, String> {
 
     }
 
+    // Creates an url from the title of a page
+    public String createUrl(String searchTerm, String apiEndpointSearch){
+        searchTerm = searchTerm.replaceAll("\\s+", "%20");
+        String newSearchUrl = apiEndpointSearch + searchTerm;
+        return newSearchUrl;
+    }
+    
 }

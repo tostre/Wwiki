@@ -1,69 +1,45 @@
 package root.tostre.com.wwiki;
 
-
 import android.os.AsyncTask;
-import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
-
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.jsoup.safety.Whitelist;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.StringReader;
 import java.net.URL;
 import java.util.ArrayList;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
+/**
+ * Created by Macel on 07.05.17.
+ * Downloads the articles and passes them to the MainActivity
+ */
 
-import root.tostre.com.wwiki.MainActivity;
-import root.tostre.com.wwiki.R;
-
-// Async task should be used to make short calculations
-// in the background and publish the results on the ui
-// It takes 3 parameters:
-// 1: String: Used to pass as parameters for doInBackground
-// 2: progress type: Type of variable used in doBackground when publishProgress is called
-// 3: result: End result, gets returned by doInBackground, also parameter for onPostExecute
 public class ArticleFetcher extends AsyncTask<String, Void , ArrayList<String>>{
 
     private InputStream inputStream;
     private MainActivity mainActivity;
-    private DocumentBuilderFactory documentBuilderFactory;
-    private DocumentBuilder documentBuilder;
     private String articleJsonUrl;
-    ArrayList<String> articleTextArray;
+    private ArrayList<String> articleTextArray;
     private ProgressBar progressBar;
-
 
     // Called when an ArticleFetcher object is created
     public ArticleFetcher(MainActivity mainActivity){
         this.mainActivity = mainActivity;
     }
 
-    @Override
+    @Override // Called, when articleFetcher.execute() is started
     protected void onPreExecute() {
         progressBar = (ProgressBar) mainActivity.findViewById(R.id.image_progressBar);
         progressBar.setVisibility(View.VISIBLE);
     }
 
-    @Override
+    @Override // Saves the articles data (text, title, etc.) in an array
     protected ArrayList<String> doInBackground(String... urls) {
         articleJsonUrl = urls[0];
         articleTextArray = new ArrayList<String>();
-
 
         try {
             inputStream = new URL(articleJsonUrl).openStream();
@@ -75,13 +51,6 @@ public class ArticleFetcher extends AsyncTask<String, Void , ArrayList<String>>{
             }
 
             JSONObject json = new JSONObject(sb.toString());
-
-
-            //document = documentBuilder.parse(new InputSource(new StringReader(json.getJSONObject("parse").getJSONObject("text").getString("*"))));
-            //document.getDocumentElement().normalize();
-
-
-            //String textp = json.getJSONObject("parse").getJSONObject("text").getString("*");
             String textp = new HtmlCleaner().cleanHtmlString(json.getJSONObject("parse").getJSONObject("text").getString("*"));
 
             // Add the url to the articleArray
@@ -100,7 +69,6 @@ public class ArticleFetcher extends AsyncTask<String, Void , ArrayList<String>>{
         return articleTextArray;
     }
 
-
     @Override // Called when doInBackground is finished
     protected void onPostExecute(ArrayList<String> articleTextArray) {
         mainActivity.updateArticleText(articleTextArray.get(0), articleTextArray.get(1));
@@ -111,13 +79,6 @@ public class ArticleFetcher extends AsyncTask<String, Void , ArrayList<String>>{
             e.printStackTrace();
         }
     }
-
-
-
-
-
-
-
 
 }
 

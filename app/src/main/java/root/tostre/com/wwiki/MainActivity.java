@@ -3,48 +3,38 @@ package root.tostre.com.wwiki;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.sqlite.SQLiteBindOrColumnIndexOutOfRangeException;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.PorterDuff;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.Html;
-import android.text.Layout;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebView;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import org.w3c.dom.Text;
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Map;
+import android.support.annotation.NonNull;
 
-import static android.R.attr.windowBackground;
+/**
+ * MainActivity, connected to activity_main.xml
+ * Handles everything that happens on the main ui
+ */
 
 public class MainActivity extends AppCompatActivity{
 
@@ -61,7 +51,6 @@ public class MainActivity extends AppCompatActivity{
     private Toolbar toolbar;
     private Menu menu;
 
-
     /**
      * Initializes the view and sets up variables that are used
      * later in the app
@@ -69,14 +58,16 @@ public class MainActivity extends AppCompatActivity{
 
     // Controls whats happens when the view is created
     protected void onCreate(Bundle savedInstanceState) {
+
         // Sets main activity as the initial view
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Create bottom menu_navigation and tollbar
+        // Create bottom menu_navigation and toolbar
         setBottomBar();
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
         // Style the collapsing toolbar
         CollapsingToolbarLayout ct = (CollapsingToolbarLayout) findViewById(R.id.collapsingToolbar);
         ct.setCollapsedTitleTextColor(getResources().getColor(R.color.colorPrimary));
@@ -84,6 +75,7 @@ public class MainActivity extends AppCompatActivity{
         ct.setContentScrimColor(getResources().getColor(R.color.colorToolbar));
         ct.setStatusBarScrimColor(getResources().getColor(R.color.colorStatusBar));
 
+        // Sets the title of the last article
         SharedPreferences sharedPref = getSharedPreferences("tostre.wwiki.lastArticle", Context.MODE_PRIVATE);
         title = sharedPref.getString("lastTitle", "Wwiki");
 
@@ -91,17 +83,13 @@ public class MainActivity extends AppCompatActivity{
         ProgressBar progressBar = (ProgressBar) findViewById(R.id.image_progressBar);
         progressBar.setVisibility(View.GONE);
 
-        // Initialize WebView
-        //wv = (WebView) findViewById(R.id.content_text);
-        //tv = (TextView) findViewById(R.id.content_text);
-        //wv.getSettings().setJavaScriptEnabled(true);
-
-        // Save data that is frequently used
+        // Initialise content container (in which the fragments are inflated)
         content_container = (NestedScrollView) findViewById(R.id.content_container);
 
         // Sets reader fragment as the initial view
         changeFragment("reader");
 
+        // Initialize default wiki
         createDefaultWikis();
     }
 
@@ -124,11 +112,6 @@ public class MainActivity extends AppCompatActivity{
             wikiEndpoints.add((String) entry.getValue());
         }
     }
-
-    /**
-     * Additional view initialization: Sets up the toolbar (and
-     * its behavior) and the bottombar (and its behavior)
-     */
 
     @Override // Sets the menu defined in xml as the apps menu
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -153,12 +136,12 @@ public class MainActivity extends AppCompatActivity{
 
                 SharedPreferences sharedPref = getSharedPreferences("tostre.wwiki.saved", Context.MODE_PRIVATE);
 
+                // Update icon when article is saved or was already saved
                 if(sharedPref.contains(title)){
                     menu.findItem(R.id.overflow_save).setIcon(getDrawable(R.drawable.icon_favorite_filled));
                 } else {
                     menu.findItem(R.id.overflow_save).setIcon(getDrawable(R.drawable.icon_favorite_strokes));
                 }
-
 
                 break;
             case "saved":
@@ -200,14 +183,12 @@ public class MainActivity extends AppCompatActivity{
                 sharedPref = getSharedPreferences("tostre.wwiki.recentslist", Context.MODE_PRIVATE);
                 sharedPref.edit().clear().apply();
                 recentsFragment.populateRecentsList();
-
                 showSnackbar("Articles removed from recents");
                 return true;
             case R.id.overflow_deleteSaved:
                 sharedPref = getSharedPreferences("tostre.wwiki.saved", Context.MODE_PRIVATE);
                 sharedPref.edit().clear().apply();
                 savedFragment.populateSavedList();
-
                 showSnackbar("Articles deleted");
                 return true;
             default:
@@ -274,13 +255,63 @@ public class MainActivity extends AppCompatActivity{
         }
     }
 
+
+    /**
+     * This block gets its arguments from the searchActivity (see block
+     * above), takes them, updates the article object and the view
+     * with them
+     */
+
+    // Updates the text-related values in the article, updates view; called from articleFetcher
+    public void updateArticleText(String title, String text){
+        ((CollapsingToolbarLayout) findViewById(R.id.collapsingToolbar)).setTitle(title);
+
+        updateRecents(title, text);
+        ((WebView) findViewById(R.id.content_text)).loadData(text, "text/html; charset=utf-8", "utf-8");
+
+        SharedPreferences sharedPref = getSharedPreferences("tostre.wwiki.saved", Context.MODE_PRIVATE);
+
+        if(sharedPref.contains(title)){
+            menu.findItem(R.id.overflow_save).setIcon(getDrawable(R.drawable.icon_favorite_filled));
+        } else {
+            menu.findItem(R.id.overflow_save).setIcon(getDrawable(R.drawable.icon_favorite_strokes));
+        }
+
+        // Hide loading spinner only when both text and image have finished loading
+        loadingStatus++;
+        if(loadingStatus == 2){
+            (findViewById(R.id.image_progressBar)).setVisibility(View.GONE);
+            loadingStatus = 0;
+        }
+    }
+
+    // Updates the img-related values in the article, updates view; called from imageFetcher
+    public void updateArticleImage(Bitmap image){
+
+        // Check if there's an image article
+        if(image != null){
+            ((ImageView) findViewById(R.id.article_image)).setImageBitmap(image);
+        } else {
+            // Set the default image
+            ((ImageView) findViewById(R.id.article_image)).setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.debug_stack));
+        }
+
+        // Hide loading spinner only when both text and image have finished loading
+        loadingStatus++;
+        if(loadingStatus == 2){
+            (findViewById(R.id.image_progressBar)).setVisibility(View.GONE);
+            loadingStatus = 0;
+        }
+
+    }
+
     // Saves all displayed articles into a shared preference
     private void updateRecents(String title, String text){
+        // Update current title and text for later reference
         this.title = title;
         this.text = text;
 
         Calendar calendar = Calendar.getInstance();
-
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MMM.yyyy");
         String date = dateFormat.format(calendar.getTime());
 
@@ -298,34 +329,6 @@ public class MainActivity extends AppCompatActivity{
         editor2.putString("lastText", text);
         editor2.apply();
     }
-
-    // Updates the text-related values in the article, updates view; called from articleFetcher
-    public void updateArticleText(String title, String text){
-        ((CollapsingToolbarLayout) findViewById(R.id.collapsingToolbar)).setTitle(title);
-
-        updateRecents(title, text);
-        ((WebView) findViewById(R.id.content_text)).loadData(text, "text/html; charset=utf-8", "utf-8");
-
-        SharedPreferences sharedPref = getSharedPreferences("tostre.wwiki.saved", Context.MODE_PRIVATE);
-
-        if(sharedPref.contains(title)){
-            menu.findItem(R.id.overflow_save).setIcon(getDrawable(R.drawable.icon_favorite_filled));
-        } else {
-            menu.findItem(R.id.overflow_save).setIcon(getDrawable(R.drawable.icon_favorite_strokes));
-        }
-
-        loadingStatus++;
-        if(loadingStatus == 2){
-            (findViewById(R.id.image_progressBar)).setVisibility(View.GONE);
-            loadingStatus = 0;
-        }
-    }
-
-    /**
-     * This block gets its arguments from the searchActivity (see block
-     * above), takes them, updates the article object and the view
-     * with them
-     */
 
     // Adds the article title and its html to a shared preference
     private void saveArticle(){
@@ -353,26 +356,9 @@ public class MainActivity extends AppCompatActivity{
 
     }
 
-    // Updates the img-related values in the article, updates view; called from imageFetcher
-    public void updateArticleImage(Bitmap image){
-
-        // Check if there's an image article
-        if(image != null){
-            ((ImageView) findViewById(R.id.article_image)).setImageBitmap(image);
-        } else {
-            // Set the default image
-            ((ImageView) findViewById(R.id.article_image)).setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.debug_stack));
-        }
-
-
-
-
-    }
-
     /**
-     * Oh boy, this is a big one. This one methods with the measurements of a block
-     * handles the switching of views, when the article is clicked, what action items
-     * to display and how the appbar behaves
+     * This one method handles the switching of views, when the article is clicked,
+     * what action items to display and how the appbar behaves
      */
 
     // Changes the fragment depending on the bottom menu_navigation item pressed
@@ -382,10 +368,6 @@ public class MainActivity extends AppCompatActivity{
         AppBarLayout appBarLayout = (AppBarLayout) findViewById(R.id.appBarLayout);
         CollapsingToolbarLayout collapsingToolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsingToolbar);
         AppBarLayout.LayoutParams params = (AppBarLayout.LayoutParams) collapsingToolbar.getLayoutParams();
-
-
-
-
         currentFragment = newFragment;
 
         switch (newFragment) {
@@ -397,19 +379,10 @@ public class MainActivity extends AppCompatActivity{
 
                 fragmentTransaction.replace(R.id.content_container, ReaderFragment.newInstance("", ""), "reader");
                 // Enables collapsing toolbar
-
                 content_container.setNestedScrollingEnabled(true);
                 params.setScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL | AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS | AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS_COLLAPSED);
-
-
                 invalidateOptionsMenu();
                 ((CollapsingToolbarLayout) findViewById(R.id.collapsingToolbar)).setTitle(title);
-                //(((WebView) findViewById(R.id.content_text)).loadData("hi", "text/html; charset=utf-8", "utf-8");
-                //WebView webView = (WebView) findViewById(R.id.content_text);
-                //webView.loadData("HALLO", "text/html", "utf-8");
-                //readerFragment.displayLastArticle();
-
-
                 break;
 
             case "saved":
@@ -450,10 +423,12 @@ public class MainActivity extends AppCompatActivity{
         fragmentTransaction.commit();
     }
 
-    public String getText(){
-        return text;
-    }
+    /**
+     * This method just shows a snackbar
+     * @param message: Message to display
+     */
 
+    // SHow snackbar
     private void showSnackbar(String message){
         Snackbar snackbar = Snackbar.make((RelativeLayout) findViewById(R.id.screenspace_container), message, Snackbar.LENGTH_LONG);
         View snackbarView = snackbar.getView();
@@ -461,20 +436,5 @@ public class MainActivity extends AppCompatActivity{
         textView.setTextColor(getResources().getColor(R.color.colorAccent));
         snackbar.show();
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 }

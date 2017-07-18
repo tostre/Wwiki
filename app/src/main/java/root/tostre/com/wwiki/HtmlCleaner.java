@@ -1,23 +1,22 @@
 package root.tostre.com.wwiki;
 
-import android.util.Log;
-
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.safety.Whitelist;
 import org.jsoup.select.Elements;
 
 /**
  * Created by Macel on 12.05.17.
+ * Takes a HTML-String and removes unwanted tags
  */
 
 public class HtmlCleaner{
 
+    // Empty
     public HtmlCleaner(){
 
     }
 
+    // Removes all unwanted tags from a HTML-String
     public String cleanHtmlString(String dirtyHtml){
         Document doc = Jsoup.parse(dirtyHtml);
 
@@ -51,16 +50,10 @@ public class HtmlCleaner{
         elements = doc.getElementsByClass("float-right toccolours");
         elements.remove();
 
-
-
-        /**
-         * Noch zu tun hier:
-         * Table class="wikitable sortable" ausfiltern, in ein array packen und erst bei wunsch einblenden
-         */
         String cleanHtml = doc.toString();
         //cleanHtml = Jsoup.clean(doc.toString(), new Whitelist().addTags("p", "span", "a", "b", "h1", "h2", "h3", "h4", "h5", "h6", "li", "ol", "ul", "href"));
 
-
         return cleanHtml;
     }
+
 }

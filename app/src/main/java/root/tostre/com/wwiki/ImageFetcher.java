@@ -1,45 +1,34 @@
 package root.tostre.com.wwiki;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Picture;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.PictureDrawable;
 import android.os.AsyncTask;
 import android.util.DisplayMetrics;
-import android.util.JsonReader;
-import android.util.Log;
-import android.view.Display;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.ProgressBar;
-
 import com.caverock.androidsvg.SVG;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
-
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+
+/**
+ * Downloads the articles image
+ */
 
 public class ImageFetcher extends AsyncTask<String, Void, Bitmap> {
 
@@ -68,20 +57,19 @@ public class ImageFetcher extends AsyncTask<String, Void, Bitmap> {
         }
     }
 
-    @Override
+    @Override // Called, when imageFetcher.execute() is started
     protected void onPreExecute() {
         super.onPreExecute();
         progressBar = (ProgressBar) mainActivity.findViewById(R.id.image_progressBar);
         progressBar.setVisibility(View.VISIBLE);
     }
 
+    // Downloads the article image
     protected Bitmap doInBackground(String... urls) {
         imgXmlUrl = urls[0];
 
         try {
             inputStream = new URL(imgXmlUrl).openStream();
-
-
 
             StringBuilder stringBuilder = new StringBuilder();
 
@@ -103,8 +91,7 @@ public class ImageFetcher extends AsyncTask<String, Void, Bitmap> {
             tagElement = (Element) tagNode;
             imgUrl = tagElement.getAttribute("source");
 
-
-
+            // Transorms a svg into a bitmap
             if(imgUrl.indexOf(".svg") != -1){
                 inputStream = new java.net.URL(imgUrl).openStream();
 
@@ -119,10 +106,6 @@ public class ImageFetcher extends AsyncTask<String, Void, Bitmap> {
                 image = BitmapFactory.decodeStream(inputStream);
             }
 
-
-
-
-            //Bitmap b = BitmapFactory.decode
             image = scaleDownBitmap(image);
 
             inputStream.close();
@@ -134,8 +117,9 @@ public class ImageFetcher extends AsyncTask<String, Void, Bitmap> {
 
     }
 
+    // Sets image in mainactivity
     protected void onPostExecute(Bitmap image) {
-        // Set image in mainactivity
+
         mainActivity.updateArticleImage(image);
         progressBar.setVisibility(View.GONE);
     }
@@ -158,10 +142,5 @@ public class ImageFetcher extends AsyncTask<String, Void, Bitmap> {
 
         return image;
     }
-
-
-
-
-
 
 }
