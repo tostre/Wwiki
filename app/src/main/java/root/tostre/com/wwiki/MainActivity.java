@@ -14,6 +14,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewCompat;
@@ -32,7 +33,9 @@ import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.w3c.dom.Text;
 
@@ -45,35 +48,18 @@ import static android.R.attr.windowBackground;
 
 public class MainActivity extends AppCompatActivity{
 
-    private Article article;
     private String currentFragment = "reader";
     private ReaderFragment readerFragment;
     private SavedFragment savedFragment;
     private RecentsFragment recentsFragment;
     private int loadingStatus = 0;
     private NestedScrollView content_container;
-
     private String text = "Try searching for an article in the upper right corner";
     private String title = "Wwiki";
     private String articleUrl;
     private String imgUrl;
-
-    private NetworkInfo networkInfo;
-    private ArrayList<String> recentArticles;
-    private String myTable = "<table border=1>" +
-            "<tr>" +
-            "<td>row 1, cell 1</td>" +
-            "<td>row 1, cell 2</td>" +
-            "</tr>" +
-            "<tr>" +
-            "<td>row 2, cell 1</td>" +
-            "<td>row 2, cell 2</td>" +
-            "</tr>" +
-            "</table>";
-    //
-    private WebView wv;
-    private TextView tv;
     private Toolbar toolbar;
+    private Menu menu;
 
 
     /**
@@ -98,12 +84,15 @@ public class MainActivity extends AppCompatActivity{
         ct.setContentScrimColor(getResources().getColor(R.color.colorToolbar));
         ct.setStatusBarScrimColor(getResources().getColor(R.color.colorStatusBar));
 
+        SharedPreferences sharedPref = getSharedPreferences("tostre.wwiki.lastArticle", Context.MODE_PRIVATE);
+        title = sharedPref.getString("lastTitle", "Wwiki");
+
         // Hide the loading spinner on start
         ProgressBar progressBar = (ProgressBar) findViewById(R.id.image_progressBar);
         progressBar.setVisibility(View.GONE);
 
         // Initialize WebView
-        wv = (WebView) findViewById(R.id.content_text);
+        //wv = (WebView) findViewById(R.id.content_text);
         //tv = (TextView) findViewById(R.id.content_text);
         //wv.getSettings().setJavaScriptEnabled(true);
 
@@ -116,32 +105,7 @@ public class MainActivity extends AppCompatActivity{
         createDefaultWikis();
     }
 
-    // Saves all loaded articles into a shared preference
-    private void updateRecents(String title, String text){
-        this.title = title;
-        this.text = text;
-
-        Calendar calendar = Calendar.getInstance();
-
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MMM.yyyy");
-        String date = dateFormat.format(calendar.getTime());
-
-        // Saves all read past articles plus date
-        SharedPreferences sharedPref = getSharedPreferences("tostre.wwiki.recentslist", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString(title, date);
-        editor.apply();
-
-        // Saves the last Articles title
-        SharedPreferences sharedPref2 = getSharedPreferences("tostre.wwiki.lastArticle", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor2 = sharedPref2.edit();
-        sharedPref2.edit().clear().apply();
-        editor2.putString("lastTitle", title);
-        editor2.putString("lastText", text);
-        editor2.apply();
-    }
-
-    // Filles the wikis-sharedPref with the default-wikis (DE & EN)
+    // Fills the wikis-sharedPref with the default-wikis (DE & EN)
     private void createDefaultWikis(){
         SharedPreferences sharedPref = getSharedPreferences("tostre.wwiki.wikilist", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
@@ -161,13 +125,6 @@ public class MainActivity extends AppCompatActivity{
         }
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState){
-        super.onSaveInstanceState(outState);
-        //outState.putString();
-        //outState.putString(wv.getT);
-    }
-
     /**
      * Additional view initialization: Sets up the toolbar (and
      * its behavior) and the bottombar (and its behavior)
@@ -175,8 +132,8 @@ public class MainActivity extends AppCompatActivity{
 
     @Override // Sets the menu defined in xml as the apps menu
     public boolean onCreateOptionsMenu(Menu menu) {
-
         getMenuInflater().inflate(R.menu.menu_overflow, menu);
+        this.menu = menu;
         return true;
     }
 
@@ -193,6 +150,16 @@ public class MainActivity extends AppCompatActivity{
                 item_save.setVisible(true);
                 item_deleteSaved.setVisible(false);
                 item_deleteRecents.setVisible(false);
+
+                SharedPreferences sharedPref = getSharedPreferences("tostre.wwiki.saved", Context.MODE_PRIVATE);
+
+                if(sharedPref.contains(title)){
+                    menu.findItem(R.id.overflow_save).setIcon(getDrawable(R.drawable.icon_favorite_filled));
+                } else {
+                    menu.findItem(R.id.overflow_save).setIcon(getDrawable(R.drawable.icon_favorite_strokes));
+                }
+
+
                 break;
             case "saved":
                 item_search.setVisible(false);
@@ -223,17 +190,25 @@ public class MainActivity extends AppCompatActivity{
                 startActivityForResult(intent, 1);
                 return true;
             case R.id.overflow_save:
-                saveArticle();
+                if(((CollapsingToolbarLayout) findViewById(R.id.collapsingToolbar)).getTitle() != "Wwiki"){
+                    saveArticle();
+                } else {
+                    showSnackbar("Something went wrong. Try reloading");
+                }
                 return true;
             case R.id.overflow_deleteRecents:
                 sharedPref = getSharedPreferences("tostre.wwiki.recentslist", Context.MODE_PRIVATE);
                 sharedPref.edit().clear().apply();
                 recentsFragment.populateRecentsList();
+
+                showSnackbar("Articles removed from recents");
                 return true;
             case R.id.overflow_deleteSaved:
                 sharedPref = getSharedPreferences("tostre.wwiki.saved", Context.MODE_PRIVATE);
                 sharedPref.edit().clear().apply();
                 savedFragment.populateSavedList();
+
+                showSnackbar("Articles deleted");
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -299,6 +274,53 @@ public class MainActivity extends AppCompatActivity{
         }
     }
 
+    // Saves all displayed articles into a shared preference
+    private void updateRecents(String title, String text){
+        this.title = title;
+        this.text = text;
+
+        Calendar calendar = Calendar.getInstance();
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MMM.yyyy");
+        String date = dateFormat.format(calendar.getTime());
+
+        // Saves all read past articles plus date
+        SharedPreferences sharedPref = getSharedPreferences("tostre.wwiki.recentslist", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString(title, date);
+        editor.apply();
+
+        // Saves the last Articles title
+        SharedPreferences sharedPref2 = getSharedPreferences("tostre.wwiki.lastArticle", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor2 = sharedPref2.edit();
+        sharedPref2.edit().clear().apply();
+        editor2.putString("lastTitle", title);
+        editor2.putString("lastText", text);
+        editor2.apply();
+    }
+
+    // Updates the text-related values in the article, updates view; called from articleFetcher
+    public void updateArticleText(String title, String text){
+        ((CollapsingToolbarLayout) findViewById(R.id.collapsingToolbar)).setTitle(title);
+
+        updateRecents(title, text);
+        ((WebView) findViewById(R.id.content_text)).loadData(text, "text/html; charset=utf-8", "utf-8");
+
+        SharedPreferences sharedPref = getSharedPreferences("tostre.wwiki.saved", Context.MODE_PRIVATE);
+
+        if(sharedPref.contains(title)){
+            menu.findItem(R.id.overflow_save).setIcon(getDrawable(R.drawable.icon_favorite_filled));
+        } else {
+            menu.findItem(R.id.overflow_save).setIcon(getDrawable(R.drawable.icon_favorite_strokes));
+        }
+
+        loadingStatus++;
+        if(loadingStatus == 2){
+            (findViewById(R.id.image_progressBar)).setVisibility(View.GONE);
+            loadingStatus = 0;
+        }
+    }
+
     /**
      * This block gets its arguments from the searchActivity (see block
      * above), takes them, updates the article object and the view
@@ -308,40 +330,27 @@ public class MainActivity extends AppCompatActivity{
     // Adds the article title and its html to a shared preference
     private void saveArticle(){
         SharedPreferences sharedPref = getSharedPreferences("tostre.wwiki.saved", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString(title, text);
-        editor.apply();
 
+        if(sharedPref.contains(title)){
+            showSnackbar("Article already saved");
+        } else {
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putString(title, text);
+            editor.apply();
+            showSnackbar("Article saved");
+
+
+        }
+
+        menu.findItem(R.id.overflow_save).setIcon(getDrawable(R.drawable.icon_favorite_filled));
+
+/*
         Map<String, ?> values = sharedPref.getAll();
         for(Map.Entry<String,?> entry : values.entrySet()){
             //Log.d("DBG","Gespeichert!!!!!: " + entry.getKey() + ": " + entry.getValue().toString());
         }
+*/
 
-
-    }
-
-    public void loadSavedArticle(View view){
-        // Hier die Kinder der View finden (die TextViews)
-        // Den Text daraus ziehen und in den SharedPrefs die entsprechenden Artikel laden
-    }
-
-    // Updates the text-related values in the article, updates view; called from articleFetcher
-    public void updateArticleText(String title, String text){
-        ((CollapsingToolbarLayout) findViewById(R.id.collapsingToolbar)).setTitle(title);
-
-        updateRecents(title, text);
-        ((WebView) findViewById(R.id.content_text)).loadData(text, "text/html; charset=utf-8", "utf-8");
-        //((TextView) findViewById(R.id.content_text)).setText(Html.fromHtml(text));
-
-
-        loadingStatus++;
-        if(loadingStatus == 2){
-            (findViewById(R.id.image_progressBar)).setVisibility(View.GONE);
-            loadingStatus = 0;
-        }
-
-        //readerFragment = (ReaderFragment) getSupportFragmentManager().findFragmentByTag("reader");
-        //readerFragment.updateView(title, text);
     }
 
     // Updates the img-related values in the article, updates view; called from imageFetcher
@@ -367,7 +376,7 @@ public class MainActivity extends AppCompatActivity{
      */
 
     // Changes the fragment depending on the bottom menu_navigation item pressed
-    private void changeFragment(String newFragment) {
+    public void changeFragment(String newFragment) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         AppBarLayout appBarLayout = (AppBarLayout) findViewById(R.id.appBarLayout);
@@ -399,6 +408,8 @@ public class MainActivity extends AppCompatActivity{
                 //WebView webView = (WebView) findViewById(R.id.content_text);
                 //webView.loadData("HALLO", "text/html", "utf-8");
                 //readerFragment.displayLastArticle();
+
+
                 break;
 
             case "saved":
@@ -443,7 +454,13 @@ public class MainActivity extends AppCompatActivity{
         return text;
     }
 
-
+    private void showSnackbar(String message){
+        Snackbar snackbar = Snackbar.make((RelativeLayout) findViewById(R.id.screenspace_container), message, Snackbar.LENGTH_LONG);
+        View snackbarView = snackbar.getView();
+        TextView textView = (TextView) snackbarView.findViewById(android.support.design.R.id.snackbar_text);
+        textView.setTextColor(getResources().getColor(R.color.colorAccent));
+        snackbar.show();
+    }
 
 
 

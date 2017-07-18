@@ -21,7 +21,6 @@ public class HtmlCleaner{
     public String cleanHtmlString(String dirtyHtml){
         Document doc = Jsoup.parse(dirtyHtml);
 
-
         Elements elements = doc.getElementsByAttributeValue("id", "bksicon");
         elements.remove();
         // Remove in-line-images
@@ -51,6 +50,8 @@ public class HtmlCleaner{
         elements.remove();
         elements = doc.getElementsByClass("float-right toccolours");
         elements.remove();
+
+
 
         /**
          * Noch zu tun hier:

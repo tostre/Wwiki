@@ -129,7 +129,7 @@ public class RecentsFragment extends Fragment {
         SharedPreferences sharedPref = getActivity().getSharedPreferences("tostre.wwiki.recentslist", Context.MODE_PRIVATE);
         Map<String, ?> wikis = sharedPref.getAll();
 
-        for(Map.Entry<String,?> entry : wikis.entrySet()){
+        for(final Map.Entry<String,?> entry : wikis.entrySet()){
 
             LayoutInflater inflater = LayoutInflater.from(getActivity().getApplicationContext());
             View listEntry = inflater.inflate(R.layout.subfragment_listentry, recentsList, false);
@@ -138,6 +138,17 @@ public class RecentsFragment extends Fragment {
             ((TextView) listEntry.findViewById(R.id.savedRecentsListItem_info)).setText("abgerufen am: " + (String) entry.getValue());
 
             recentsList.addView(listEntry);
+
+            // This command shall jump back to the reader and load the article when the user clicks on a list-entry
+            // Loading the article doesn't work yet
+            listEntry.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.d("DBG", "Clicked: " + entry.getKey());
+                    ((MainActivity) getActivity()).changeFragment("reader");
+                    //((BottomNavigationView) getActivity().findViewById(R.id.navigation)).up
+                }
+            });
         }
     }
 }

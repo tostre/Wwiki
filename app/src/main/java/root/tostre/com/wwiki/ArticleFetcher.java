@@ -43,10 +43,6 @@ public class ArticleFetcher extends AsyncTask<String, Void , ArrayList<String>>{
     private MainActivity mainActivity;
     private DocumentBuilderFactory documentBuilderFactory;
     private DocumentBuilder documentBuilder;
-    private Document document;
-    private NodeList tagList;
-    private Node tagNode;
-    private Element tagElement;
     private String articleJsonUrl;
     ArrayList<String> articleTextArray;
     private ProgressBar progressBar;
@@ -70,8 +66,6 @@ public class ArticleFetcher extends AsyncTask<String, Void , ArrayList<String>>{
 
 
         try {
-            documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            documentBuilder = documentBuilderFactory.newDocumentBuilder();
             inputStream = new URL(articleJsonUrl).openStream();
             BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
             StringBuilder sb = new StringBuilder();
@@ -93,19 +87,16 @@ public class ArticleFetcher extends AsyncTask<String, Void , ArrayList<String>>{
             // Add the url to the articleArray
             articleTextArray.add(json.getJSONObject("parse").getString("title"));
             articleTextArray.add(textp);
-
             articleTextArray.add(articleJsonUrl);
+
             inputStream.close();
 
         } catch (IOException e) {
             e.printStackTrace();
         } catch (JSONException e) {
             e.printStackTrace();
-        } /*catch (SAXException e) {
-            e.printStackTrace();
-        }*/ catch (ParserConfigurationException e) {
-            e.printStackTrace();
         }
+
         return articleTextArray;
     }
 

@@ -4,7 +4,10 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.internal.BottomNavigationMenu;
+import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -84,7 +87,7 @@ public class SavedFragment extends Fragment {
         SharedPreferences sharedPref = getActivity().getSharedPreferences("tostre.wwiki.saved", Context.MODE_PRIVATE);
         Map<String, ?> wikis = sharedPref.getAll();
 
-        for(Map.Entry<String,?> entry : wikis.entrySet()){
+        for(final Map.Entry<String,?> entry : wikis.entrySet()){
 
             LayoutInflater inflater = LayoutInflater.from(getActivity().getApplicationContext());
             View listEntry = inflater.inflate(R.layout.subfragment_listentry, savedList, false);
@@ -93,6 +96,20 @@ public class SavedFragment extends Fragment {
             ((TextView) listEntry.findViewById(R.id.savedRecentsListItem_info)).setText("offline verfügbar");
 
             savedList.addView(listEntry);
+
+            // This command shall jump back to the reader and load the article when the user clicks on a list-entry
+            // Loading the article doesn't work yet
+            listEntry.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.d("DBG", "Clicked: " + entry.getKey());
+                    ((MainActivity) getActivity()).changeFragment("reader");
+                    //((BottomNavigationView) getActivity().findViewById(R.id.navigation)).up
+                }
+            });
+
+
+
         }
     }
 
@@ -116,7 +133,9 @@ public class SavedFragment extends Fragment {
         }
     }
 
-
+    public void loadSavedArticle(View view){
+        Log.d("DBG", (String) "hi");
+    }
 
     @Override
     public void onDetach() {

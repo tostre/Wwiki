@@ -50,32 +50,16 @@ public class ReaderFragment extends Fragment {
     // Used for initializing all ui-variables
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
-
         setHasOptionsMenu(true);
-
-        // Get required view variables
-        //collapsingToolbar = (CollapsingToolbarLayout) getActivity().findViewById(R.id.collapsingToolbar);
-        //webView = (WebView) view.findViewById(R.id.content_text);
-
-        //displayLastArticle();
-
-
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_reader, container, false);
-
-
-
         webView = (WebView) view;
-
-
         return view;
     }
 
     @Override
     public void onPause(){
         super.onPause();
-        Log.d("DBG", "onPause");
         webViewBundle = new Bundle();
         webView.saveState(webViewBundle);
 
@@ -92,21 +76,24 @@ public class ReaderFragment extends Fragment {
     @Override
     public void onResume(){
         super.onResume();
-        SharedPreferences prefs = getActivity().getApplicationContext().getSharedPreferences(getActivity().getPackageName(), Activity.MODE_PRIVATE);
+        SharedPreferences sharedPref = getActivity().getApplicationContext().getSharedPreferences(getActivity().getPackageName(), Activity.MODE_PRIVATE);
 
         if(webView != null) {
 
-            String lastUrl = prefs.getString("lastUrl","");
+            String lastUrl = sharedPref.getString("lastUrl","");
             if(!lastUrl.equals("")) {
                 webView.loadUrl(lastUrl);
             }
         }
 
         if(lastTitle != null){
-            ((CollapsingToolbarLayout) getActivity().findViewById(R.id.collapsingToolbar)).setTitle(prefs.getString("lastTitle", ""));
+            ((CollapsingToolbarLayout) getActivity().findViewById(R.id.collapsingToolbar)).setTitle(sharedPref.getString("lastTitle", ""));
         }
 
     }
+
+
+
 
 
 
