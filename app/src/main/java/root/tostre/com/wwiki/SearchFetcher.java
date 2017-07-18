@@ -93,5 +93,5 @@ public class SearchFetcher extends AsyncTask<String, Void, String> {
         String newSearchUrl = apiEndpointSearch + searchTerm;
         return newSearchUrl;
     }
-    
+
 }
