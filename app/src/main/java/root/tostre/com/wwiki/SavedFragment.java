@@ -74,24 +74,25 @@ public class SavedFragment extends Fragment {
         return rootView;
     }
 
+    // Reads the entries from the sharedPreferences, creates new views according to the number of items in the
+    // SharedPref and displays them (highly inefficient, will be reworked)
     public void populateSavedList(){
 
-        LinearLayout saved_list = (LinearLayout) rootView.findViewById(R.id.saved_list);
+        LinearLayout savedList = (LinearLayout) rootView.findViewById(R.id.saved_list);
+        savedList.removeAllViews();
 
         SharedPreferences sharedPref = getActivity().getSharedPreferences("tostre.wwiki.saved", Context.MODE_PRIVATE);
         Map<String, ?> wikis = sharedPref.getAll();
-        ArrayList<String> articleTitles = new ArrayList<>();
-        ArrayList<String> articleDates= new ArrayList<>();
 
         for(Map.Entry<String,?> entry : wikis.entrySet()){
 
             LayoutInflater inflater = LayoutInflater.from(getActivity().getApplicationContext());
-            View listEntry = inflater.inflate(R.layout.subfragment_listentry, saved_list, false);
+            View listEntry = inflater.inflate(R.layout.subfragment_listentry, savedList, false);
 
             ((TextView) listEntry.findViewById(R.id.savedRecentsListItem_title)).setText(entry.getKey());
             ((TextView) listEntry.findViewById(R.id.savedRecentsListItem_info)).setText("offline verfügbar");
 
-            saved_list.addView(listEntry);
+            savedList.addView(listEntry);
         }
     }
 

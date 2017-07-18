@@ -119,14 +119,15 @@ public class RecentsFragment extends Fragment {
         void onFragmentInteraction(Uri uri);
     }
 
+    // Reads the entries from the sharedPreferences, creates new views according to the number of items in the
+    // SharedPref and displays them (highly inefficient, will be reworked)
     public void populateRecentsList(){
 
         LinearLayout recentsList = (LinearLayout) rootView.findViewById(R.id.recents_list);
+        recentsList.removeAllViews();
 
         SharedPreferences sharedPref = getActivity().getSharedPreferences("tostre.wwiki.recentslist", Context.MODE_PRIVATE);
         Map<String, ?> wikis = sharedPref.getAll();
-        ArrayList<String> articleTitles = new ArrayList<>();
-        ArrayList<String> articleDates= new ArrayList<>();
 
         for(Map.Entry<String,?> entry : wikis.entrySet()){
 

@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteBindOrColumnIndexOutOfRangeException;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.PorterDuff;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -15,6 +16,7 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -71,6 +73,7 @@ public class MainActivity extends AppCompatActivity{
     //
     private WebView wv;
     private TextView tv;
+    private Toolbar toolbar;
 
 
     /**
@@ -86,7 +89,7 @@ public class MainActivity extends AppCompatActivity{
 
         // Create bottom menu_navigation and tollbar
         setBottomBar();
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         // Style the collapsing toolbar
         CollapsingToolbarLayout ct = (CollapsingToolbarLayout) findViewById(R.id.collapsingToolbar);
@@ -165,8 +168,8 @@ public class MainActivity extends AppCompatActivity{
 
     @Override // Sets the menu defined in xml as the apps menu
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_overflow, menu);
+
+        getMenuInflater().inflate(R.menu.menu_overflow, menu);
         return true;
     }
 
@@ -174,23 +177,27 @@ public class MainActivity extends AppCompatActivity{
     public boolean onPrepareOptionsMenu(Menu menu) {
         MenuItem item_search = menu.findItem(R.id.overflow_search);
         MenuItem item_save = menu.findItem(R.id.overflow_save);
-        MenuItem item_delete = menu.findItem(R.id.overflow_delete);
+        MenuItem item_deleteRecents = menu.findItem(R.id.overflow_deleteRecents);
+        MenuItem item_deleteSaved = menu.findItem(R.id.overflow_deleteSaved);
 
         switch (currentFragment){
             case "reader":
                 item_search.setVisible(true);
                 item_save.setVisible(true);
-                item_delete.setVisible(false);
+                item_deleteSaved.setVisible(false);
+                item_deleteRecents.setVisible(false);
                 break;
             case "saved":
                 item_search.setVisible(false);
                 item_save.setVisible(false);
-                item_delete.setVisible(true);
+                item_deleteSaved.setVisible(true);
+                item_deleteRecents.setVisible(false);
                 break;
             case "recents":
                 item_search.setVisible(false);
                 item_save.setVisible(false);
-                item_delete.setVisible(true);
+                item_deleteSaved.setVisible(false);
+                item_deleteRecents.setVisible(true);
                 break;
             default:
                 break;
@@ -207,11 +214,16 @@ public class MainActivity extends AppCompatActivity{
                 startActivityForResult(intent, 1);
                 return true;
             case R.id.overflow_save:
-                // Debug method
-                //updateArticleText("titke", getResources().getString(R.string.large_text));
                 saveArticle();
                 return true;
-            case R.id.overflow_delete:
+            case R.id.overflow_deleteRecents:
+
+                return true;
+            case R.id.overflow_deleteSaved:
+                SharedPreferences sharedPref = getSharedPreferences("tostre.wwiki.saved", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPref.edit();
+                sharedPref.edit().clear().apply();
+                savedFragment.populateSavedList();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -352,6 +364,9 @@ public class MainActivity extends AppCompatActivity{
         CollapsingToolbarLayout collapsingToolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsingToolbar);
         AppBarLayout.LayoutParams params = (AppBarLayout.LayoutParams) collapsingToolbar.getLayoutParams();
 
+
+
+
         currentFragment = newFragment;
 
         switch (newFragment) {
@@ -363,15 +378,17 @@ public class MainActivity extends AppCompatActivity{
 
                 fragmentTransaction.replace(R.id.content_container, ReaderFragment.newInstance("", ""), "reader");
                 // Enables collapsing toolbar
+
                 content_container.setNestedScrollingEnabled(true);
                 params.setScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL | AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS | AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS_COLLAPSED);
+
+
                 invalidateOptionsMenu();
                 ((CollapsingToolbarLayout) findViewById(R.id.collapsingToolbar)).setTitle(title);
                 //(((WebView) findViewById(R.id.content_text)).loadData("hi", "text/html; charset=utf-8", "utf-8");
                 //WebView webView = (WebView) findViewById(R.id.content_text);
                 //webView.loadData("HALLO", "text/html", "utf-8");
                 //readerFragment.displayLastArticle();
-                Log.d("DBG", text);
                 break;
 
             case "saved":
@@ -379,8 +396,6 @@ public class MainActivity extends AppCompatActivity{
                 if (savedFragment == null){
                     savedFragment = SavedFragment.newInstance();
                 }
-
-                // TODO create new instances of subfragmen_listentry. As many as there are saved articles
 
                 // Replaces children of content_container with new fragment
                 fragmentTransaction.replace(R.id.content_container, savedFragment);
@@ -397,8 +412,6 @@ public class MainActivity extends AppCompatActivity{
                 if (recentsFragment == null){
                     recentsFragment = RecentsFragment.newInstance();
                 }
-
-
 
                 // Replaces children of content_container with new fragment
                 fragmentTransaction.replace(R.id.content_container, recentsFragment);
