@@ -1,5 +1,6 @@
 package root.tostre.com.wwiki;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -21,7 +22,8 @@ public class ReaderFragment extends Fragment {
 
     private CollapsingToolbarLayout collapsingToolbar;
     private WebView webView;
-
+    private Bundle webViewBundle;
+    private CharSequence lastTitle;
 
 
 
@@ -61,31 +63,51 @@ public class ReaderFragment extends Fragment {
 
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_reader, container, false);
+
+
+
+        webView = (WebView) view;
+
+
         return view;
     }
 
-    // Updates the view with the values in the current article-arraylist
-    public void displayLastArticle() {
+    @Override
+    public void onPause(){
+        super.onPause();
+        Log.d("DBG", "onPause");
+        webViewBundle = new Bundle();
+        webView.saveState(webViewBundle);
 
-        //webView.loadData("HALLO", "text/html", "utf-8");
+        SharedPreferences prefs = getActivity().getApplicationContext().getSharedPreferences(getActivity().getPackageName(), Activity.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString("lastUrl", webView.getUrl());
+        editor.putString("lastTitle", (String) ((CollapsingToolbarLayout) getActivity().findViewById(R.id.collapsingToolbar)).getTitle());
+        editor.commit();
 
+        lastTitle = ((CollapsingToolbarLayout) getActivity().findViewById(R.id.collapsingToolbar)).getTitle();
 
-        SharedPreferences sharedPref = this.getActivity().getSharedPreferences("tostre.wwiki.lastArticle", Context.MODE_PRIVATE);
-
-        Map<String, ?> values = sharedPref.getAll();
-        String lastTitle = sharedPref.getString("lastTitle", "No last title");
-
-
-
-        SharedPreferences sharedPref2 = this.getActivity().getSharedPreferences("tostre.wwiki.lastArticle", Context.MODE_PRIVATE);
-        String lastText = sharedPref2.getString("lastText", "No last text");
-
-        //((TextView) getView().findViewById(R.id.content_text)).setText(Html.fromHtml(lastText));
-        //((MainActivity) getActivity()).updateArticleText(lastTitle, lastText);
-
-        //Log.d("DBG", "LASTTITLE: " + lastTitle);
-        //Log.d("DBG", "LASTTEXT: " + lastText);
     }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        SharedPreferences prefs = getActivity().getApplicationContext().getSharedPreferences(getActivity().getPackageName(), Activity.MODE_PRIVATE);
+
+        if(webView != null) {
+
+            String lastUrl = prefs.getString("lastUrl","");
+            if(!lastUrl.equals("")) {
+                webView.loadUrl(lastUrl);
+            }
+        }
+
+        if(lastTitle != null){
+            ((CollapsingToolbarLayout) getActivity().findViewById(R.id.collapsingToolbar)).setTitle(prefs.getString("lastTitle", ""));
+        }
+
+    }
+
 
 
 

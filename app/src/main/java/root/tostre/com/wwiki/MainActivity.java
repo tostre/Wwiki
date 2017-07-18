@@ -161,6 +161,13 @@ public class MainActivity extends AppCompatActivity{
         }
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState){
+        super.onSaveInstanceState(outState);
+        //outState.putString();
+        //outState.putString(wv.getT);
+    }
+
     /**
      * Additional view initialization: Sets up the toolbar (and
      * its behavior) and the bottombar (and its behavior)
@@ -207,6 +214,8 @@ public class MainActivity extends AppCompatActivity{
 
     // Defines what happens when an menu_overflow-menu item is selected
     public boolean onOptionsItemSelected(MenuItem item) {
+        SharedPreferences sharedPref;
+
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.overflow_search:
@@ -217,11 +226,12 @@ public class MainActivity extends AppCompatActivity{
                 saveArticle();
                 return true;
             case R.id.overflow_deleteRecents:
-
+                sharedPref = getSharedPreferences("tostre.wwiki.recentslist", Context.MODE_PRIVATE);
+                sharedPref.edit().clear().apply();
+                recentsFragment.populateRecentsList();
                 return true;
             case R.id.overflow_deleteSaved:
-                SharedPreferences sharedPref = getSharedPreferences("tostre.wwiki.saved", Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = sharedPref.edit();
+                sharedPref = getSharedPreferences("tostre.wwiki.saved", Context.MODE_PRIVATE);
                 sharedPref.edit().clear().apply();
                 savedFragment.populateSavedList();
                 return true;
