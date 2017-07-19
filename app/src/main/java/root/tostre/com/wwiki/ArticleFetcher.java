@@ -20,20 +20,19 @@ import java.util.ArrayList;
 public class ArticleFetcher extends AsyncTask<String, Void , ArrayList<String>>{
 
     private InputStream inputStream;
-    private MainActivity mainActivity;
+    private ArticleFetcherCallback callback;
     private String articleJsonUrl;
     private ArrayList<String> articleTextArray;
     private ProgressBar progressBar;
 
     // Called when an ArticleFetcher object is created
-    public ArticleFetcher(MainActivity mainActivity){
-        this.mainActivity = mainActivity;
+    public ArticleFetcher(ArticleFetcherCallback callback){
+        this.callback = callback;
     }
 
     @Override // Called, when articleFetcher.execute() is started
     protected void onPreExecute() {
-        progressBar = (ProgressBar) mainActivity.findViewById(R.id.image_progressBar);
-        progressBar.setVisibility(View.VISIBLE);
+
     }
 
     @Override // Saves the articles data (text, title, etc.) in an array
@@ -71,8 +70,7 @@ public class ArticleFetcher extends AsyncTask<String, Void , ArrayList<String>>{
 
     @Override // Called when doInBackground is finished
     protected void onPostExecute(ArrayList<String> articleTextArray) {
-        mainActivity.updateArticleText(articleTextArray.get(0), articleTextArray.get(1));
-
+        callback.articleTextFetched(articleTextArray.get(0), articleTextArray.get(1));
         try {
             inputStream.close();
         } catch (IOException e) {
@@ -80,6 +78,9 @@ public class ArticleFetcher extends AsyncTask<String, Void , ArrayList<String>>{
         }
     }
 
+    public interface ArticleFetcherCallback{
+        abstract void articleTextFetched(String title, String htmlContent);
+    }
 }
 
 
