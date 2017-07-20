@@ -39,7 +39,7 @@ public class SearchActivity extends AppCompatActivity {
     private String apiEndpointArticle = "";
     private String apiEndpointImg ="";
     private String apiEndpointSearch = "";
-    private String apiParamsArticle = "?format=json&redirects=yes&action=parse&disableeditsection=true&page=";
+    private String apiParamsArticle = "?format=json&redirects=yes&action=parse&disableeditsection=true&mobileformat=true&noimages=true&page=";
     private String apiParamsImg = "?action=query&prop=pageimages&piprop=original&format=xml&titles=";
     private String apiParamsSearch = "?action=query&list=search&srlimit=20&format=json&srsearch=";
     private Menu menu;
