@@ -17,6 +17,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -36,8 +37,9 @@ import android.support.annotation.NonNull;
  * Handles everything that happens on the main ui
  */
 
-public class MainActivity extends AppCompatActivity{
+public class MainActivity extends AppCompatActivity implements ArticleLoader.ArticleLoaderCallback{
 
+    private Article article;
     private String currentFragment = "reader";
     private ReaderFragment readerFragment;
     private SavedFragment savedFragment;
@@ -50,6 +52,10 @@ public class MainActivity extends AppCompatActivity{
     private String imgUrl;
     private Toolbar toolbar;
     private Menu menu;
+    private ProgressBar progressBar;
+
+    private ArrayList<Article> history = new ArrayList<>();
+    private Article currentArticle;
 
     /**
      * Initializes the view and sets up variables that are used
@@ -80,7 +86,7 @@ public class MainActivity extends AppCompatActivity{
         title = sharedPref.getString("lastTitle", "Wwiki");
 
         // Hide the loading spinner on start
-        ProgressBar progressBar = (ProgressBar) findViewById(R.id.image_progressBar);
+        progressBar = (ProgressBar) findViewById(R.id.image_progressBar);
         progressBar.setVisibility(View.GONE);
 
         // Initialise content container (in which the fragments are inflated)
@@ -247,11 +253,9 @@ public class MainActivity extends AppCompatActivity{
             imgUrl = data.getStringExtra("imageJsonUrl");
             // One instance of an AsyncTask can only be executed once, therefore
             // for every exectuion there must be created a new instance
-            ArticleFetcher articleFetcher = new ArticleFetcher(this);
-            ImageFetcher imageFetcher = new ImageFetcher(this);
-
-            articleFetcher.execute(data.getStringExtra("articleJsonUrl"));
-            imageFetcher.execute(data.getStringExtra("imageJsonUrl"));
+            ArticleLoader articleLoader = new ArticleLoader(this,this);
+            articleLoader.loadArticle(articleUrl, imgUrl);
+            progressBar.setVisibility(View.VISIBLE);
         }
     }
 
@@ -437,4 +441,28 @@ public class MainActivity extends AppCompatActivity{
         snackbar.show();
     }
 
+
+    @Override
+    public void onBackPressed() {
+        int state = history.indexOf(currentArticle);
+        if(state > 0){
+            Article article = history.get(state - 1);
+            updateArticleImage(article.getImage());
+            updateArticleText(article.getTitle(),article.getHtml());
+            currentArticle = article;
+        }else{
+            super.onBackPressed();
+        }
+    }
+
+    @Override
+    public void onArticleLoaded(Article article) {
+        history.add(article);
+        currentArticle = article;
+        ((ImageView) findViewById(R.id.article_image)).setImageBitmap(article.getImage());
+        updateArticleImage(article.getImage());
+        updateArticleText(article.getTitle(),article.getHtml());
+        progressBar.setVisibility(View.GONE);
+
+    }
 }

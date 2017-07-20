@@ -1,13 +1,14 @@
 package root.tostre.com.wwiki;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Picture;
 import android.os.AsyncTask;
 import android.util.DisplayMetrics;
-import android.view.View;
-import android.widget.ProgressBar;
+import android.view.WindowManager;
+
 import com.caverock.androidsvg.SVG;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -32,8 +33,9 @@ import javax.xml.parsers.ParserConfigurationException;
 
 public class ImageFetcher extends AsyncTask<String, Void, Bitmap> {
 
+    private Context context;
     private InputStream inputStream;
-    private MainActivity mainActivity;
+    private ImageFetcherCallback callback;
     private DocumentBuilderFactory documentBuilderFactory;
     private DocumentBuilder documentBuilder;
     private Document document;
@@ -43,10 +45,10 @@ public class ImageFetcher extends AsyncTask<String, Void, Bitmap> {
     private String imgUrl;
     private Bitmap image;
     private String imgXmlUrl;
-    private ProgressBar progressBar;
 
-    public ImageFetcher(MainActivity mainActivity){
-        this.mainActivity = mainActivity;
+    public ImageFetcher(Context context, ImageFetcherCallback callback){
+        this.context = context;
+        this.callback = callback;
         image = null;
 
         try {
@@ -60,8 +62,6 @@ public class ImageFetcher extends AsyncTask<String, Void, Bitmap> {
     @Override // Called, when imageFetcher.execute() is started
     protected void onPreExecute() {
         super.onPreExecute();
-        progressBar = (ProgressBar) mainActivity.findViewById(R.id.image_progressBar);
-        progressBar.setVisibility(View.VISIBLE);
     }
 
     // Downloads the article image
@@ -119,16 +119,15 @@ public class ImageFetcher extends AsyncTask<String, Void, Bitmap> {
 
     // Sets image in mainactivity
     protected void onPostExecute(Bitmap image) {
-
-        mainActivity.updateArticleImage(image);
-        progressBar.setVisibility(View.GONE);
+        callback.imageFetched(image);
     }
 
     // scales down the bitmap proportionally so that it fits the screens width
     private Bitmap scaleDownBitmap(Bitmap image){
 
         DisplayMetrics displayMetrics = new DisplayMetrics();
-        mainActivity.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        wm.getDefaultDisplay().getMetrics(displayMetrics);
 
         int screenWidth = displayMetrics.widthPixels;
         int imageHeight = image.getHeight();
@@ -143,4 +142,7 @@ public class ImageFetcher extends AsyncTask<String, Void, Bitmap> {
         return image;
     }
 
+    public interface ImageFetcherCallback{
+        abstract void imageFetched(Bitmap bitmap);
+    }
 }
